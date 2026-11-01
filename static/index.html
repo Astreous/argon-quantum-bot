@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARGON QUANTUM OS v4.0 // Binance TR Neural Trading Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=43" />
+</head>
+<body>
+  <!-- ARKA PLAN SİBER EFEKTLERİ -->
+  <div class="cyber-bg-grid"></div>
+  <div class="ambient-glow glow-cyan"></div>
+  <div class="ambient-glow glow-emerald"></div>
+  <div class="scanline-overlay"></div>
+
+  <!-- CANLI KAYAN QUANTUM TICKER ŞERİDİ -->
+  <div class="cyber-ticker-wrap">
+    <div class="ticker-tag">⚡ NEURAL FEED</div>
+    <div class="ticker-marquee">
+      <div id="liveTickerTrack" class="ticker-track">
+        <span>BİNANCE TR QUANTUM v4.0 STREAM BAĞLANIYOR...</span>
+      </div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="reactor-core" id="reactorCore">
+        <div class="reactor-ring ring-1"></div>
+        <div class="reactor-ring ring-2"></div>
+        <div class="reactor-dot"></div>
+      </div>
+      <div>
+        <h1>ARGON <span>QUANTUM v4.0</span></h1>
+        <p class="subtitle">NEURAL ENGINE // %50 SCALE-OUT • MTF EMA50 • OBI WHALE RADAR • AUTO-COMPOUND</p>
+      </div>
+    </div>
+
+    <div class="top-status">
+      <span id="regimeBadge" class="badge badge-info">🟡 REJİM ANALİZ EDİLİYOR</span>
+      <span id="engineBadge" class="badge badge-info">BİNANCE TR BAĞLANIYOR...</span>
+      <span id="botStateBadge" class="badge badge-stopped">STANDBY</span>
+      <div class="top-actions">
+        <button id="btnStartStop" class="btn btn-primary btn-cyber" onclick="toggleBot()">▶ QUANTUM BAŞLAT</button>
+        <button class="btn btn-buy btn-cyber" onclick="autoBuildPortfolio()">⚡ OTO-PORTFÖY DAĞIT</button>
+        <button class="btn btn-sell btn-cyber" onclick="closeAllPositions()">🔴 TÜMÜNÜ NAKDE ÇEVİR</button>
+        <button class="btn btn-outline btn-cyber" onclick="resetPaperBalance()">🔄 SIFIRLA</button>
+        <button id="btnSoundToggle" class="btn btn-outline btn-cyber" onclick="toggleQuantumSound()">🔊 SES: AÇIK</button>
+        <button class="btn btn-outline btn-cyber" onclick="openCloudModal()">☁️ 7/24 BULUT</button>
+        <button class="btn btn-outline btn-cyber" onclick="openApiModal()">🔑 API KEY</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <!-- ÜST HOLOGRAFİK METRİK KARTLARI -->
+    <section class="metrics-grid">
+      <div class="card metric-card hud-card">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <span class="metric-label">TOPLAM PORTFÖY DEĞERİ (AUTO-COMPOUND EQUITY)</span>
+        <div class="metric-value-row">
+          <h2 id="metricEquity" class="glow-text-cyan">10,000.00 TRY</h2>
+          <span id="metricModeBadge" class="pill pill-paper">QUANT v4.0</span>
+        </div>
+        <small id="metricLastUpdate">Son tarama: --:--:--</small>
+      </div>
+
+      <div class="card metric-card hud-card">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <span class="metric-label">NAKİT REZERVİ / AKTİF SLOT</span>
+        <div class="metric-value-row">
+          <h2 id="metricCash">10,000.00 TRY</h2>
+          <span id="metricOpenCount" class="pill">0 / 8 SLOT</span>
+        </div>
+        <small id="metricInvested">Sepetteki Yatırım: 0.00 TRY</small>
+      </div>
+
+      <div class="card metric-card hud-card">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <span class="metric-label">GERÇEKÇİ NET KÂR / ZARAR (KOMİSYON DAHİL)</span>
+        <div class="metric-value-row">
+          <h2 id="metricTotalPnl">0.00 TRY</h2>
+          <span id="metricWinRate" class="pill">WIN: %0</span>
+        </div>
+        <small id="metricUnrealized">Açık Net PnL: 0.00 TRY | Komisyon: 0.00 TRY</small>
+      </div>
+
+      <div class="card metric-card hud-card">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <span class="metric-label">ALFA RADAR LİDERİ (MTF + OBI ONAYLI)</span>
+        <div class="metric-value-row">
+          <h2 id="metricTopCoin" class="signal-hold">TARANIYOR...</h2>
+          <span id="metricTopScore" class="pill">SKOR: --/100</span>
+        </div>
+        <small id="metricTopReason">60+ Binance TR paritesi taranıyor...</small>
+      </div>
+    </section>
+
+    <!-- DEV HOLOGRAFİK CANLI PORTFÖY BÜYÜME EĞRİSİ (EQUITY CURVE) -->
+    <section class="card equity-hero-card hud-card">
+      <div class="hud-corner hud-tl"></div>
+      <div class="hud-corner hud-br"></div>
+      <div class="card-header">
+        <div class="header-with-pulse">
+          <span class="live-dot"></span>
+          <div>
+            <h3>💎 CANLI PORTFÖY BÜYÜME EĞRİSİ (EQUITY CURVE)</h3>
+            <span class="chart-legend">
+              <i class="dot" style="background:#00ff9d;box-shadow:0 0 8px #00ff9d"></i> Kâr Bölgesi (Başlangıç Üstü Yeşil)
+              <i class="dot" style="background:#ff2a6d;box-shadow:0 0 8px #ff2a6d"></i> Zarar Bölgesi (Başlangıç Altı Kırmızı)
+              <i class="dot" style="background:#f0b90b;box-shadow:0 0 8px #f0b90b"></i> Başlangıç Sermayesi Referansı (10,000 TRY)
+            </span>
+          </div>
+        </div>
+        <div class="equity-hero-stats">
+          <span id="equityPeakBadge" class="pill">ZİRVE: 10,000 TRY</span>
+          <span id="equityGrowthBadge" class="pill pill-live">+%0.00</span>
+        </div>
+      </div>
+      <div class="canvas-wrapper equity-canvas-wrapper">
+        <canvas id="equityChart" width="1360" height="245"></canvas>
+      </div>
+    </section>
+
+    <!-- ENERJİ & PORTFÖY DAĞILIM ÇUBUĞU (ALLOCATION BAR) -->
+    <section class="card allocation-card hud-card">
+      <div class="allocation-header">
+        <span>⚡ <strong>QUANTUM PORTFÖY ENERJİ DAĞILIMI</strong> (Volatility Parity &amp; Bileşik Kâr Ağırlıkları)</span>
+        <div id="allocationLegend" class="allocation-legend"></div>
+      </div>
+      <div id="allocationBar" class="allocation-bar">
+        <div class="alloc-segment" style="width: 100%; background: #1e293b;">Nakit TRY (%100)</div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <!-- SOL PANEL: KONTROL KULESİ -->
+      <aside class="card sidebar-card hud-card">
+        <div class="card-header">
+          <h3>🎛️ QUANTUM v4.0 KONTROL KULESİ</h3>
+          <button type="button" class="btn btn-xs btn-outline" onclick="resetPaperBalance()">🔄 Sıfırla</button>
+        </div>
+
+        <form id="settingsForm" onsubmit="saveBotSettings(event)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Çalışma Modu</label>
+              <select id="cfgMode">
+                <option value="paper">Simülasyon (Paper)</option>
+                <option value="live">Gerçek (Binance TR API)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Baz Para Birimi</label>
+              <select id="cfgQuoteAsset" onchange="onQuoteAssetChange()">
+                <option value="TRY" selected>TRY (₺ Türk Lirası)</option>
+                <option value="USDT">USDT ($ Dolar)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Radar Tarama Kapasitesi (Binance TR)</label>
+            <select id="cfgScanLimit">
+              <option value="30">30 Coin (Hızlı Radar)</option>
+              <option value="60" selected>60 Coin (Geniş Portföy - Önerilen)</option>
+              <option value="100">100 Coin (Mega Radar - En Hacimli 100)</option>
+              <option value="150">150 Coin (Tüm Borsa Hacim Liderleri)</option>
+            </select>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Maks. Eşzamanlı Coin</label>
+              <input type="number" id="cfgMaxPositions" min="2" max="25" value="8" />
+            </div>
+            <div class="form-group">
+              <label id="lblTradeAmount">Baz Alım Tutarı (TRY)</label>
+              <input type="number" id="cfgTradeAmount" step="50" min="10" value="1250" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Zaman Dilimi (Mum)</label>
+              <select id="cfgTimeframe">
+                <option value="1m">1 Dakika (1m)</option>
+                <option value="5m">5 Dakika (5m)</option>
+                <option value="15m" selected>15 Dakika (15m)</option>
+                <option value="1h">1 Saat (1h)</option>
+                <option value="4h">4 Saat (4h)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Algoritma Çekirdeği</label>
+              <select id="cfgStrategy">
+                <option value="multi">Quant v4.0 (Tam Hibrit Çekirdek)</option>
+                <option value="rsi_ema">Onaylı RSI + EMA Kesişimi</option>
+                <option value="macd">Onaylı MACD + RVOL Filtresi</option>
+                <option value="bollinger">Bollinger Dönüş Radarı</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider-title">🛡️ QUANT v4.0 NÖRAL KORUMA KALKANLARI</div>
+          <div class="coin-chips-grid">
+            <label class="coin-chip" title="Fiyat +%1.8'e ulaştığında pozisyonun %50'sini satıp kârı cebine koyar, kalan %50'yi izleyen stop ile trende bırakır">
+              <input type="checkbox" id="cfgUsePartialTp" checked />
+              <span>🎯 %50 Kademeli TP</span>
+            </label>
+            <label class="coin-chip" title="EMA 50 üst zaman dilimi makro trend onayını kontrol eder">
+              <input type="checkbox" id="cfgUseMtfFilter" checked />
+              <span>📐 MTF Üst Trend</span>
+            </label>
+            <label class="coin-chip" title="Binance TR Emir Defteri (Order Book) derinliğini analiz ederek satış duvarlarına karşı korur">
+              <input type="checkbox" id="cfgUseObiFilter" checked />
+              <span>🐋 OBI Balina Radarı</span>
+            </label>
+            <label class="coin-chip" title="Portföy büyüdükçe işlem başı alım tutarını otomatik olarak bileşik büyütür">
+              <input type="checkbox" id="cfgUseAutoCompound" checked />
+              <span>📈 Bileşik Kâr (Auto)</span>
+            </label>
+            <label class="coin-chip">
+              <input type="checkbox" id="cfgUseAtrStops" checked />
+              <span>ATR Dinamik SL/TP</span>
+            </label>
+            <label class="coin-chip">
+              <input type="checkbox" id="cfgUseVolSizing" checked />
+              <span>Volatilite Ağırlığı</span>
+            </label>
+            <label class="coin-chip">
+              <input type="checkbox" id="cfgUseRegimeFilter" checked />
+              <span>BTC Rejim Kalkanı</span>
+            </label>
+            <label class="coin-chip">
+              <input type="checkbox" id="cfgUseTrailing" checked />
+              <span>Kâr Kilidi (Trailing)</span>
+            </label>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Kademeli TP1 (%)</label>
+              <input type="number" id="cfgPartialTpPct" step="0.1" min="0.8" max="6.0" value="1.8" />
+            </div>
+            <div class="form-group">
+              <label>ATR SL Çarpanı</label>
+              <input type="number" id="cfgAtrSlMult" step="0.1" min="0.8" max="5.0" value="2.0" />
+            </div>
+            <div class="form-group">
+              <label>ATR TP Çarpanı</label>
+              <input type="number" id="cfgAtrTpMult" step="0.1" min="1.2" max="10.0" value="3.8" />
+            </div>
+          </div>
+
+          <div class="divider-title">⚡ GÜNLÜK KÂR / ZARAR SİGORTASI (CIRCUIT BREAKER)</div>
+          <div class="coin-chips-grid" style="grid-template-columns: 1fr;">
+            <label class="coin-chip">
+              <input type="checkbox" id="cfgUseCircuitBreaker" checked />
+              <span>🛡️ Günlük Sigorta Aktif (Hedefe ulaşınca kârı kilitler / Çöküşte sistemi durdurur)</span>
+            </label>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Günlük Kâr Hedefi%</label>
+              <input type="number" id="cfgDailyTpPct" step="0.5" min="1.0" max="50.0" value="8.0" />
+            </div>
+            <div class="form-group">
+              <label>Günlük Zarar Kes%</label>
+              <input type="number" id="cfgDailySlPct" step="0.5" min="1.0" max="25.0" value="4.0" />
+            </div>
+            <div class="form-group">
+              <label>Komisyon+Kayma(%)</label>
+              <input type="number" id="cfgFeePct" step="0.05" min="0.0" max="1.0" value="0.25" />
+            </div>
+          </div>
+
+          <div class="divider-title">📐 SENSÖR KALİBRASYONU</div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>RSI Periyot</label>
+              <input type="number" id="cfgRsiPeriod" min="2" max="50" value="14" />
+            </div>
+            <div class="form-group">
+              <label>RSI Alım (&lt;)</label>
+              <input type="number" id="cfgRsiOversold" min="10" max="55" value="35" />
+            </div>
+            <div class="form-group">
+              <label>RSI Satış (&gt;)</label>
+              <input type="number" id="cfgRsiOverbought" min="50" max="90" value="68" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Hızlı EMA</label>
+              <input type="number" id="cfgEmaFast" min="2" max="100" value="9" />
+            </div>
+            <div class="form-group">
+              <label>Yavaş EMA</label>
+              <input type="number" id="cfgEmaSlow" min="5" max="200" value="21" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-cyber">💾 PARAMETRELERİ SİSTEME YÜKLE</button>
+          <button type="button" class="btn btn-outline btn-block btn-cyber" onclick="refreshTopVolumeCoins()">🔄 HACİM LİDERLERİNİ TARAYICIYA ÇEK</button>
+        </form>
+      </aside>
+
+      <!-- SAĞ ALAN: AKTİF POZİSYONLAR, RADAR TABLOSU, HOLOGRAFİK GRAFİKLER -->
+      <section class="center-column">
+        <!-- 1. AÇIK PORTFÖY POZİSYONLARI -->
+        <div class="card hud-card">
+          <div class="card-header">
+            <div class="header-with-pulse">
+              <span class="live-dot"></span>
+              <h3>AKTİF PORTFÖY SEPETİ // %50 KADEMELİ TP &amp; KÂR KİLİDİ</h3>
+            </div>
+            <span class="subtitle">+%1.20'de Stop-Loss kâra kilitlenir • +%1.80'de %50 Kademeli Kâr cebinize aktarılır</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>PARİTE &amp; DURUM</th>
+                  <th>GİRİŞ FİYATI</th>
+                  <th>CANLI FİYAT</th>
+                  <th>YATIRIM (VOL+BİLEŞİK)</th>
+                  <th>NET DEĞER</th>
+                  <th>NET KÂR / ZARAR</th>
+                  <th>ATR SL / TP LAZERİ</th>
+                  <th>KOMUT</th>
+                </tr>
+              </thead>
+              <tbody id="openPositionsTableBody">
+                <tr>
+                  <td colspan="8" class="text-center">
+                    Aktif pozisyon yok. Üstteki <strong>"⚡ OTO-PORTFÖY DAĞIT"</strong> veya <strong>"▶ QUANTUM BAŞLAT"</strong> komutuyla sistemi ateşleyebilirsiniz.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 60 - 150+ COİN QUANTUM RADAR TARAYICISI -->
+        <div class="card hud-card">
+          <div class="card-header scanner-header-wrap">
+            <div class="header-with-pulse">
+              <div class="radar-sweep"></div>
+              <div>
+                <h3 id="scannerTitle">📡 QUANTUM v4.0 MULTI-COIN RADAR (60 PARİTE)</h3>
+                <span id="scannerSummaryText" class="subtitle">MTF EMA50 Üst Trend • Kurumsal Hacim (RVOL) • OBI Balina Duvarı Analizi</span>
+              </div>
+            </div>
+            <div class="scanner-filters">
+              <input type="text" id="coinSearchInput" class="search-input" placeholder="🔍 Parite ara (PEPE, SOL, AVAX)..." oninput="renderCurrentState()" />
+              <select id="scannerFilterSelect" class="filter-select" onchange="renderCurrentState()">
+                <option value="ALL">Tüm Pariteler (Skor Sıralı)</option>
+                <option value="BUY">🟢 Sadece ONAYLI AL Sinyalleri</option>
+                <option value="MTF_BULL">📐 MTF Üst Trend Onaylılar (EMA50 ↑)</option>
+                <option value="HIGH_RVOL">🔥 Kurumsal Hacim Patlaması (RVOL &gt; 1.3x)</option>
+                <option value="PORTFOLIO">💼 Portföydeki Açık Coinler</option>
+                <option value="SELL">🔴 Sadece SAT Sinyalleri</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-container scanner-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>PARİTE</th>
+                  <th>CANLI FİYAT</th>
+                  <th>ONAYLI RSI</th>
+                  <th>RVOL &amp; MTF</th>
+                  <th>ATR VOLATİLİTE</th>
+                  <th>DİNAMİK SL / TP</th>
+                  <th>QUANTUM SKORU</th>
+                  <th>SİNYAL</th>
+                  <th>AKSİYON</th>
+                </tr>
+              </thead>
+              <tbody id="scannerTableBody">
+                <tr><td colspan="9" class="text-center">Quantum Radar Binance TR verilerini tarıyor...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. SEÇİLİ COİN HOLOGRAFİK MUM & MTF MATRİSİ -->
+        <div class="card chart-card hud-card">
+          <div class="card-header">
+            <div>
+              <h3 id="chartTitle">📈 BTC/TRY HOLOGRAFİK MUM &amp; MTF MATRİSİ</h3>
+              <span class="chart-legend">
+                <i class="dot dot-ema-fast"></i> EMA Hızlı
+                <i class="dot dot-ema-slow"></i> EMA Yavaş
+                <i class="dot dot-ema-macro"></i> EMA 50 (MTF)
+                <i class="dot dot-bb"></i> Bollinger
+              </span>
+            </div>
+            <div class="manual-controls">
+              <button class="btn btn-buy btn-sm btn-cyber" onclick="manualBuySelected()">🟢 SEÇİLİ COİNİ AL</button>
+              <button class="btn btn-sell btn-sm btn-cyber" onclick="manualSellSelected()">🔴 SEÇİLİ COİNİ SAT</button>
+            </div>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="priceChart" width="920" height="280"></canvas>
+          </div>
+        </div>
+
+        <!-- 4. TAMAMLANAN İŞLEMLER VE TERMİNAL GÜNLÜĞÜ -->
+        <div class="sub-grid">
+          <div class="card hud-card">
+            <div class="card-header">
+              <h3>📜 İŞLEM ARŞİVİ (%50 SCALE-OUT &amp; NET MUHASEBE)</h3>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SAAT</th>
+                    <th>PARİTE</th>
+                    <th>GİRİŞ → ÇIKIŞ</th>
+                    <th>NET KÂR / ZARAR</th>
+                    <th>TETİKLEYİCİ</th>
+                  </tr>
+                </thead>
+                <tbody id="tradesTableBody">
+                  <tr><td colspan="5" class="text-center">Henüz tamamlanmış işlem yok.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card hud-card">
+            <div class="card-header">
+              <h3>🖥️ NEURAL TELEMETRİ LOGLARI</h3>
+            </div>
+            <div id="logsContainer" class="logs-box"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- BINANCE TR API KEY MODAL -->
+  <div id="apiModal" class="modal-backdrop" style="display:none">
+    <div class="modal-card hud-card">
+      <div class="card-header">
+        <h3>🔑 BİNANCE TR ŞİFRELİ API BAĞLANTISI</h3>
+        <button class="btn btn-xs btn-outline" onclick="closeApiModal()">✕</button>
+      </div>
+      <p class="modal-desc">
+        Simülasyon (Paper Portföy) modu için API anahtarına <strong>ihtiyaç yoktur</strong>. Gerçek <strong>Binance TR (`trbinance.com`)</strong> hesabınızda otomatik al-sat yapmak istediğinizde API Key ve Secret bilgilerinizi girebilirsiniz.
+      </p>
+      <div class="form-group">
+        <label>Binance TR API Key</label>
+        <input type="text" id="modalApiKey" placeholder="Binance TR API Key giriniz..." />
+      </div>
+      <div class="form-group">
+        <label>Binance TR API Secret</label>
+        <input type="password" id="modalApiSecret" placeholder="Binance TR API Secret giriniz..." />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline btn-cyber" onclick="closeApiModal()">İptal</button>
+        <button class="btn btn-primary btn-cyber" onclick="saveApiKeys()">Şifrele &amp; Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7/24 ÜCRETSİZ BULUT (CLOUD) SENKRONİZASYON MODAL -->
+  <div id="cloudModal" class="modal-backdrop" style="display:none">
+    <div class="modal-card hud-card" style="width: 560px; max-width: 95vw;">
+      <div class="card-header">
+        <h3>☁️ HUGGING FACE BULUT TERMİNALİ &amp; SENKRONİZASYON</h3>
+        <button class="btn btn-xs btn-outline" onclick="closeCloudModal()">✕</button>
+      </div>
+      <p class="modal-desc">
+        Sizin için oluşturulan canlı bulut terminaline cep telefonunuzdan veya istediğiniz bilgisayardan erişebilirsiniz. Portföyünüz <strong>Astreous/argon-quantum-state</strong> bulut veritabanıyla otomatik senkronize edilir:
+      </p>
+      <div style="background:rgba(4,9,20,0.85);border:1px solid rgba(0,240,255,0.28);border-radius:6px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.6;">
+        <div>🌐 <strong>Canlı Bulut Arayüzünüz:</strong> <a href="https://astreous-argon-quantum.static.hf.space" target="_blank" style="color:#00ff9d;font-weight:700;text-decoration:underline;">https://astreous-argon-quantum.static.hf.space</a></div>
+        <div>📦 <strong>Bulut Veritabanı:</strong> <code>Astreous/argon-quantum-state</code> (Otomatik Senkron)</div>
+      </div>
+      <div class="form-group">
+        <label>Hugging Face Write Token (Uzaktan Yazma Yetkisi İçin)</label>
+        <input type="password" id="modalHfToken" placeholder="hf_..." />
+      </div>
+      <div class="form-group">
+        <label>Harici Python Bulut Sunucusu (Opsiyonel - Render vb.)</label>
+        <input type="text" id="modalCloudUrl" placeholder="Örn: https://argon-quantum.onrender.com (Boş bırakılabilir)" />
+      </div>
+      <div id="cloudSyncStatus" style="font-size:12.5px;color:#00ff9d;margin-bottom:8px;"></div>
+      <div class="modal-actions" style="flex-wrap:wrap;">
+        <button class="btn btn-outline btn-cyber" onclick="pullStateFromHfCloud(true)">📥 Buluttan Portföyü Çek</button>
+        <button class="btn btn-primary btn-cyber" onclick="saveHfTokenAndSync()">☁️ Şimdi Buluta Kaydet &amp; Senkronla</button>
+        <button class="btn btn-outline btn-cyber" onclick="closeCloudModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=58"></script>
+</body>
+</html>
