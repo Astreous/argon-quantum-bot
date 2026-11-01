@@ -13,4 +13,4 @@ EXPOSE 7860
 
 ENV PORT=7860
 
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "python cloud_daemon.py & python app.py"]
