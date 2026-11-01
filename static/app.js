@@ -1,8 +1,8 @@
-// Argon Quant v4.0 | Kurumsal Çoklu-Coin Algoritmik Portföy & 7/24 Bulut Motoru
-let backendAvailable = false;
-// ARGON Quant v4.0: Hızlı Scalp & 4 Kademeli Kâr Koruması (%25 / %50 / %75 / %100)
+// Argon Quant v4.0 | Kurumsal ÇoÇıkışlu-Coin AlgoritmiÇıkış Portföy & 7/24 Bulut Motoru
+let bacÇıkışendAvailable = false;
+// ARGON Quant v4.0: Hızlı Scalp & 4 Kademeli Kâr Korumasıı (%25 / %50 / %75 / %100)
 const TREND_MODE = false;
-let trendPullTick = 0;
+let trendPullTicÇıkış = 0;
 let cloudBaseUrl = localStorage.getItem("argon_cloud_url") || "";
 let pollTimer = null;
 let isScanning = false;
@@ -14,25 +14,25 @@ function apiUrl(path) {
   return cloudBaseUrl ? `${cloudBaseUrl.replace(/\/$/, "")}${path}` : path;
 }
 
-// Quant v3.5+ temiz başlangıç ve 10,000 TRY kasa migrasyonu
-if (!localStorage.getItem("argon_10k_cap_v1")) {
+// Quant v3.5+ temiz başlangıç ve 10,000 TRY Çıkışasa migrasyonu
+if (!localStorage.getItem("argon_10Çıkış_cap_v1")) {
   localStorage.removeItem("argon_trades");
   localStorage.removeItem("argon_portfolio_trades");
   localStorage.removeItem("argon_btr_trades");
   localStorage.removeItem("argon_btr_fees");
   localStorage.removeItem("argon_btr_portfolio_v36");
   localStorage.setItem("argon_v36_clean", "1");
-  localStorage.setItem("argon_10k_cap_v1", "1");
+  localStorage.setItem("argon_10Çıkış_cap_v1", "1");
 }
-if (!localStorage.getItem("argon_10k_autostart_v2")) {
+if (!localStorage.getItem("argon_10Çıkış_autostart_v2")) {
   try {
     const cur = JSON.parse(localStorage.getItem("argon_btr_portfolio_v36") || "null");
-    if (cur && !cur.running && Object.keys(cur.positions || {}).length === 0) {
+    if (cur && !cur.running && Object.Çıkışeys(cur.positions || {}).length === 0) {
       cur.running = true;
       localStorage.setItem("argon_btr_portfolio_v36", JSON.stringify(cur));
     }
   } catch (_) {}
-  localStorage.setItem("argon_10k_autostart_v2", "1");
+  localStorage.setItem("argon_10Çıkış_autostart_v2", "1");
 }
 
 const BINANCE_TR_60_COINS = [
@@ -72,7 +72,7 @@ let audioCtx = null;
 function playQuantumSound(type = "BUY") {
   if (!soundEnabled) return;
   try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    const AudioContextClass = window.AudioContext || window.webÇıkışitAudioContext;
     if (!AudioContextClass) return;
     if (!audioCtx) audioCtx = new AudioContextClass();
     if (audioCtx.state === "suspended") audioCtx.resume();
@@ -122,15 +122,15 @@ const localState = {
   equityHistory: savedPortfolioState?.equityHistory || [
     { time: new Date().toLocaleTimeString("tr-TR"), equity: 10000.0 },
   ],
-  circuit_breaker_tripped: false,
-  circuit_breaker_reason: "",
+  circuit_breaÇıkışer_tripped: false,
+  circuit_breaÇıkışer_reason: "",
   cooldownUntil: {}, // Overtrading önleyici soğuma süresi
   obiCache: {},
   scanner: {},
   candlesCache: {},
-  candlesTs: {}, // TTL Cache zaman damgaları (Rate-Limit koruması)
-  liveTickers: {},
-  market_regime: {
+  candlesTs: {}, // TTL Cache zaman damgaları (Rate-Limit Çıkışoruması)
+  liveTicÇıkışers: {},
+  marÇıkışet_regime: {
     state: "NEUTRAL",
     label: "🟡 SEÇİCİ / DENGELİ REJİM",
     btc_rsi: 50.0,
@@ -143,7 +143,7 @@ const localState = {
     exchange: "binance_tr",
     quote_asset: "TRY",
     mode: "paper",
-    market_type: "spot",
+    marÇıkışet_type: "spot",
     symbol: "BTC/TRY",
     scan_limit: 60,
     portfolio_coins: [...BINANCE_TR_60_COINS],
@@ -156,7 +156,7 @@ const localState = {
     use_mtf_filter: true,
     use_obi_filter: true,
     use_auto_compound: true,
-    use_circuit_breaker: true,
+    use_circuit_breaÇıkışer: true,
     daily_tp_limit_pct: 8.0,
     daily_sl_limit_pct: 4.0,
     use_atr_stops: true,
@@ -194,25 +194,25 @@ function onQuoteAssetChange() {
 }
 
 // --- AŞAMA 1: TEK HTTP İSTEĞİ İLE TÜM BİNANCE TR FİYATLARINI & RİSKLERİNİ GÜNCELLE ---
-async function fetchStage1AllTickers() {
+async function fetchStage1AllTicÇıkışers() {
   const endpoints = [
-    "https://api.binance.me/api/v3/ticker/24hr",
-    "https://data-api.binance.vision/api/v3/ticker/24hr",
+    "https://api.binance.me/api/v3/ticÇıkışer/24hr",
+    "https://data-api.binance.vision/api/v3/ticÇıkışer/24hr",
   ];
   const suffix = (localState.settings.quote_asset || "TRY").toUpperCase();
   for (const url of endpoints) {
     try {
       const resp = await fetch(url);
-      if (!resp.ok) continue;
-      const tickers = await resp.json();
-      for (const t of tickers) {
+      if (!resp.oÇıkış) continue;
+      const ticÇıkışers = await resp.json();
+      for (const t of ticÇıkışers) {
         if (t.symbol && t.symbol.endsWith(suffix)) {
           const base = t.symbol.slice(0, -suffix.length);
           const sym = `${base}/${suffix}`;
           const price = parseFloat(t.lastPrice);
           const qVol = parseFloat(t.quoteVolume);
           if (price > 0) {
-            localState.liveTickers[sym] = {
+            localState.liveTicÇıkışers[sym] = {
               price,
               quoteVolume: qVol,
               priceChangePercent: parseFloat(t.priceChangePercent || 0),
@@ -220,7 +220,7 @@ async function fetchStage1AllTickers() {
             if (localState.scanner[sym]) {
               localState.scanner[sym].price = price;
             }
-            checkLocalRiskForSymbol(sym, price);
+            checÇıkışLocalRisÇıkışForSymbol(sym, price);
           }
         }
       }
@@ -231,9 +231,9 @@ async function fetchStage1AllTickers() {
 }
 
 async function fetchTopBinanceTrCoins(limit = 60, quoteAsset = "TRY") {
-  await fetchStage1AllTickers();
+  await fetchStage1AllTicÇıkışers();
   const suffix = quoteAsset.toUpperCase();
-  const entries = Object.entries(localState.liveTickers)
+  const entries = Object.entries(localState.liveTicÇıkışers)
     .filter(([sym, info]) => sym.endsWith(`/${suffix}`) && info.quoteVolume > 0)
     .sort((a, b) => b[1].quoteVolume - a[1].quoteVolume);
 
@@ -251,7 +251,7 @@ async function fetchTopBinanceTrCoins(limit = 60, quoteAsset = "TRY") {
 async function refreshTopVolumeCoins() {
   const limit = parseInt(document.getElementById("cfgScanLimit").value, 10) || 60;
   const quote = document.getElementById("cfgQuoteAsset").value || "TRY";
-  addLocalLog("INFO", `Binance TR üzerinden en yüksek hacimli ${limit} ${quote} paritesi çekiliyor...`);
+  addLocalLog("INFO", `Binance TR üzerinden en yüÇıkışseÇıkış hacimli ${limit} ${quote} paritesi çeÇıkışiliyor...`);
   const topList = await fetchTopBinanceTrCoins(limit, quote);
   localState.settings.portfolio_coins = topList;
   localState.settings.scan_limit = limit;
@@ -260,7 +260,7 @@ async function refreshTopVolumeCoins() {
   localState.scanner = {};
   localState.candlesTs = {};
   rotationOffset = 0;
-  addLocalLog("INFO", `Binance TR ${topList.length} coinlik yeni hacim listesi yüklendi.`);
+  addLocalLog("INFO", `Binance TR ${topList.length} coinliÇıkış yeni hacim listesi yüÇıkışlendi.`);
   await runLocalPortfolioScan(true);
 }
 
@@ -285,9 +285,9 @@ function calcEMA(vals, period) {
   for (let i = 0; i < period; i++) sum += vals[i];
   let prev = sum / period;
   res[period - 1] = prev;
-  const k = 2 / (period + 1);
+  const Çıkış = 2 / (period + 1);
   for (let i = period; i < vals.length; i++) {
-    prev = (vals[i] - prev) * k + prev;
+    prev = (vals[i] - prev) * Çıkış + prev;
     res[i] = prev;
   }
   return res;
@@ -384,9 +384,9 @@ function calcMACD(closes, fast = 12, slow = 26, sigP = 9) {
   const signal = new Array(closes.length).fill(null);
   const hist = new Array(closes.length).fill(null);
   const sigEma = calcEMA(validVals, sigP);
-  for (let k = 0; k < validIdx.length; k++) {
-    const idx = validIdx[k];
-    signal[idx] = sigEma[k];
+  for (let Çıkış = 0; Çıkış < validIdx.length; Çıkış++) {
+    const idx = validIdx[Çıkış];
+    signal[idx] = sigEma[Çıkış];
     if (signal[idx] !== null) hist[idx] = macd[idx] - signal[idx];
   }
   return { macd, signal, hist };
@@ -394,14 +394,14 @@ function calcMACD(closes, fast = 12, slow = 26, sigP = 9) {
 
 function evaluateCoinStrategy(candles, cfg) {
   if (!candles || candles.length < 35) {
-    return { signal: "HOLD", score: 50, reason: "Veri bekleniyor...", indicators: {}, series: {} };
+    return { signal: "HOLD", score: 50, reason: "Veri beÇıkışleniyor...", indicators: {}, series: {} };
   }
   const closes = candles.map((c) => c.close);
   const opens = candles.map((c) => c.open);
   const rsiArr = calcRSI(closes, Number(cfg.rsi_period || 14));
   const emaFastArr = calcEMA(closes, Number(cfg.ema_fast || 9));
   const emaSlowArr = calcEMA(closes, Number(cfg.ema_slow || 21));
-  const emaMacroArr = calcEMA(closes, 50); // Quant v4.0 MTF Makro Trend (EMA 50)
+  const emaMacroArr = calcEMA(closes, 50); // Quant v4.0 MTF MaÇıkışro Trend (EMA 50)
   const macdObj = calcMACD(closes, 12, 26, 9);
   const bbObj = calcBollinger(closes, 20, 2.0);
   const atrArr = calcATR(candles, 14);
@@ -413,7 +413,7 @@ function evaluateCoinStrategy(candles, cfg) {
   const closedPrice = closes[n - 1];
   const closedOpen = opens[n - 1];
 
-  // Falling Knife (Düşen Bıçak) Koruması: Mum yönü ve ivme kontrolü
+  // Falling Knife (Düşen BıçaÇıkış) Korumasıı: Mum yönü ve ivme Çıkışontrolü
   const isClosedGreen = closedPrice >= closedOpen;
   const isLiveGreen = price >= openLive && price >= closedPrice;
   const isBullishCandle = isClosedGreen || isLiveGreen;
@@ -474,7 +474,7 @@ function evaluateCoinStrategy(candles, cfg) {
       score += 22;
       reasons.push(`Onaylı Dip Dönüşü (RSI ${rsiClosed.toFixed(1)} ↑)`);
     } else {
-      score -= 10; // Düşen bıçak cezası
+      score -= 10; // Düşen bıçaÇıkış cezası
     }
   } else if (rsiClosed >= 45 && rsiClosed <= 62 && rsiRising && emaUp) {
     score += 14;
@@ -495,7 +495,7 @@ function evaluateCoinStrategy(candles, cfg) {
     score -= 10;
   }
 
-  // 2.5 Quant v4.0: Çoklu Zaman Dilimi (MTF EMA 50) Üst Trend Onayı
+  // 2.5 Quant v4.0: ÇoÇıkışlu Zaman Dilimi (MTF EMA 50) Üst Trend Onayı
   if (cfg.use_mtf_filter !== false) {
     if (mtfBullish) {
       score += 10;
@@ -523,14 +523,14 @@ function evaluateCoinStrategy(candles, cfg) {
     score -= 14;
   }
 
-  // 5. Hacim Yönü (Yeşil Mumda RVOL = Alım, Kırmızı Mumda RVOL = Satış Baskısı)
+  // 5. Hacim Yönü (Yeşil Mumda RVOL = Alım, Kırmızı Mumda RVOL = Satışış BasÇıkışısı)
   if (rvol >= 1.35) {
     if (isClosedGreen && isLiveGreen) {
       score += 12;
       reasons.push(`Kurumsal Alım Hacmi (${rvol.toFixed(1)}x RVOL)`);
     } else if (isHeavyDump) {
       score -= 18;
-      reasons.push(`Yüksek Satış Baskısı (${rvol.toFixed(1)}x)`);
+      reasons.push(`YüÇıkışseÇıkış Satışış BasÇıkışısı (${rvol.toFixed(1)}x)`);
     }
   } else if (rvol < 0.55) {
     score -= 8;
@@ -606,7 +606,7 @@ function evaluateCoinStrategy(candles, cfg) {
   };
 }
 
-// Quant v4.0: Emir Defteri (Order Book Imbalance - OBI) Balina Duvarı Analizi
+// Quant v4.0: Emir Defteri (Order BooÇıkış Imbalance - OBI) Balina Duvarı Analizi
 async function fetchLocalObiRatio(symbol) {
   const cached = localState.obiCache[symbol];
   if (cached && Date.now() - cached.ts < 25000) {
@@ -620,14 +620,14 @@ async function fetchLocalObiRatio(symbol) {
   for (const url of endpoints) {
     try {
       const resp = await fetch(url);
-      if (!resp.ok) continue;
-      const book = await resp.json();
-      const bids = book.bids || [];
-      const asks = book.asks || [];
+      if (!resp.oÇıkış) continue;
+      const booÇıkış = await resp.json();
+      const bids = booÇıkış.bids || [];
+      const asÇıkışs = booÇıkış.asÇıkışs || [];
       const bidVol = bids.reduce((s, b) => s + parseFloat(b[0]) * parseFloat(b[1]), 0);
-      const askVol = asks.reduce((s, a) => s + parseFloat(a[0]) * parseFloat(a[1]), 0);
-      if (askVol > 0) {
-        const ratio = Number((bidVol / askVol).toFixed(2));
+      const asÇıkışVol = asÇıkışs.reduce((s, a) => s + parseFloat(a[0]) * parseFloat(a[1]), 0);
+      if (asÇıkışVol > 0) {
+        const ratio = Number((bidVol / asÇıkışVol).toFixed(2));
         localState.obiCache[symbol] = { ratio, ts: Date.now() };
         return ratio;
       }
@@ -638,27 +638,27 @@ async function fetchLocalObiRatio(symbol) {
 
 async function fetchBinanceTrCandles(symbol, timeframe, limit = 75, force = false) {
   const now = Date.now();
-  // 38 saniye TTL Önbellek (Rate-Limit Koruması)
+  // 38 saniye TTL ÖnbelleÇıkış (Rate-Limit Korumasıı)
   if (!force && localState.candlesCache[symbol] && now - (localState.candlesTs[symbol] || 0) < 38000) {
     const cached = localState.candlesCache[symbol];
-    if (localState.liveTickers[symbol] && cached.length > 0) {
-      cached[cached.length - 1].close = localState.liveTickers[symbol].price;
+    if (localState.liveTicÇıkışers[symbol] && cached.length > 0) {
+      cached[cached.length - 1].close = localState.liveTicÇıkışers[symbol].price;
     }
     return cached;
   }
 
   const rawSym = symbol.replace("/", "").replace("_", "").toUpperCase();
   const endpoints = [
-    "https://api.binance.me/api/v3/klines",
-    "https://data-api.binance.vision/api/v3/klines",
-    "https://api4.binance.com/api/v3/klines",
+    "https://api.binance.me/api/v3/Çıkışlines",
+    "https://data-api.binance.vision/api/v3/Çıkışlines",
+    "https://api4.binance.com/api/v3/Çıkışlines",
   ];
   let lastError = null;
   for (const baseUrl of endpoints) {
     try {
       const url = `${baseUrl}?symbol=${rawSym}&interval=${timeframe}&limit=${limit}`;
       const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      if (!resp.oÇıkış) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       const candles = data.map((r) => ({
         time: Math.floor(r[0] / 1000),
@@ -678,7 +678,7 @@ async function fetchBinanceTrCandles(symbol, timeframe, limit = 75, force = fals
   throw lastError || new Error("Binance TR veri sunucusuna bağlanılamadı");
 }
 
-function updateLocalMarketRegime() {
+function updateLocalMarÇıkışetRegime() {
   const quote = localState.settings.quote_asset || "TRY";
   const btcSym = `BTC/${quote}`;
   const btcScan = localState.scanner[btcSym];
@@ -689,34 +689,34 @@ function updateLocalMarketRegime() {
   const isUp = (ind.ema_fast || 0) >= (ind.ema_slow || 0);
 
   if (isUp && rsi >= 48) {
-    localState.market_regime = {
+    localState.marÇıkışet_regime = {
       state: "BULL",
       label: `🟢 BOĞA REJİMİ (BTC RSI: ${rsi.toFixed(0)})`,
       btc_rsi: rsi,
       btc_trend: "POZİTİF",
     };
   } else if (!isUp && rsi < 38) {
-    localState.market_regime = {
+    localState.marÇıkışet_regime = {
       state: "BEAR",
       label: `🔴 AYI KALKANI AKTİF (BTC RSI: ${rsi.toFixed(0)})`,
       btc_rsi: rsi,
       btc_trend: "DÜŞÜŞ",
     };
   } else {
-    localState.market_regime = {
+    localState.marÇıkışet_regime = {
       state: "NEUTRAL",
       label: `🟡 SEÇİCİ REJİM (BTC RSI: ${rsi.toFixed(0)})`,
       btc_rsi: rsi,
-      btc_trend: isUp ? "Yükseliş" : "Zayıf",
+      btc_trend: isUp ? "YüÇıkışseliş" : "Zayıf",
     };
   }
 }
 
 function getLocalTotalEquity() {
   let invested = 0;
-  for (const sym of Object.keys(localState.positions)) {
+  for (const sym of Object.Çıkışeys(localState.positions)) {
     const p = localState.positions[sym];
-    const cp = localState.liveTickers[sym]?.price || p.current_price || p.entry_price;
+    const cp = localState.liveTicÇıkışers[sym]?.price || p.current_price || p.entry_price;
     const uPct = ((cp - p.entry_price) / p.entry_price) * 100;
     invested += p.invested_usdt * (1 + uPct / 100);
   }
@@ -729,7 +729,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
   if (!isManual && Date.now() < (localState.cooldownUntil[symbol] || 0)) return false;
 
   const maxPos = Number(localState.settings.max_open_positions || 8);
-  const openCount = Object.keys(localState.positions).length;
+  const openCount = Object.Çıkışeys(localState.positions).length;
   if (openCount >= maxPos) return false;
 
   const quote = localState.settings.quote_asset || "TRY";
@@ -738,7 +738,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
 
   let baseAmt = customAmt !== null ? Number(customAmt) : Number(localState.settings.trade_amount_usdt || 1250);
 
-  // Quant v4.0: Otomatik Bileşik Kâr (Auto-Compounding)
+  // Quant v4.0: OtomatiÇıkış BileşiÇıkış Kâr (Auto-Compounding)
   if (customAmt === null && localState.settings.use_auto_compound) {
     const initialCap = quote === "TRY" ? 10000.0 : 1000.0;
     const totalEq = getLocalTotalEquity();
@@ -764,7 +764,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
   localState.cash_usdt -= amt;
 
   let slPct = Math.max(2.5, Number(localState.settings.stop_loss_pct || 2.5));
-  let tpPct = Math.max(3.2, Number(localState.settings.take_profit_pct || 4.5));
+  let tpPct = Math.max(3.2, Number(localState.settings.taÇıkışe_profit_pct || 4.5));
   if (localState.settings.use_atr_stops && ind.dynamic_sl_pct) {
     slPct = Math.max(2.5, Number(ind.dynamic_sl_pct));
     tpPct = Math.max(3.2, Number(ind.dynamic_tp_pct));
@@ -779,16 +779,16 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
     qty: amt / price,
     invested_usdt: amt,
     stop_loss: price * (1 - slPct / 100),
-    take_profit: price * (1 + tpPct / 100),
+    taÇıkışe_profit: price * (1 + tpPct / 100),
     sl_pct: slPct,
     tp_pct: tpPct,
     atr_pct: ind.atr_pct || 1.5,
     rvol: ind.rvol || 1.0,
     obi_ratio: obiRatio,
     mtf_bullish: Boolean(ind.mtf_bullish ?? true),
-    profit_locked: false,
-    partial_tp_taken: false,
-    lock_stage: 0,
+    profit_locÇıkışed: false,
+    partial_tp_taÇıkışen: false,
+    locÇıkış_stage: 0,
     opened_ts: Date.now(),
     opened_at: new Date().toLocaleTimeString("tr-TR"),
     reason,
@@ -796,21 +796,21 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
   playQuantumSound("BUY");
   addLocalLog(
     "BUY",
-    `QUANT v4.5 ALIM [${symbol}] @ ${formatPrice(price)} ${quote} | Tutar: ${amt.toFixed(0)} ${quote} | OBI: ${obiRatio}x | 4 Aşamalı Kâr Kilidi (%25/%50/%75/%100) Aktif | ${reason}`
+    `QUANT v4.5 ALIM [${symbol}] @ ${formatPrice(price)} ${quote} | Tutar: ${amt.toFixed(0)} ${quote} | OBI: ${obiRatio}x | 4 Aşamalı Kâr Kilidi (%25/%50/%75/%100) AÇıkıştif | ${reason}`
   );
   if (typeof pushStateToHfCloud === "function") pushStateToHfCloud(true);
   return true;
 }
 
 // Quant v4.5: 4 Aşamalı Kademeli Kâr Kilidi (%25 -> %50 -> %75 -> %100)
-function executeLocalStageLock(symbol, price, targetStage, stageLabel, scaleFractionOfRemaining, newSlPctFloor) {
+function executeLocalStageLocÇıkış(symbol, price, targetStage, stageLabel, scaleFractionOfRemaining, newSlPctFloor) {
   const pos = localState.positions[symbol];
   if (!pos) return;
-  const curStage = Number(pos.lock_stage || 0);
+  const curStage = Number(pos.locÇıkış_stage || 0);
   if (curStage >= targetStage) return;
 
   if (targetStage === 4 || scaleFractionOfRemaining >= 0.99) {
-    pos.lock_stage = 4;
+    pos.locÇıkış_stage = 4;
     localCloseCoinPosition(symbol, price, `🏆 4. AŞAMA (%100 TAM KÂR KİLİDİ) @ ${formatPrice(price)}`);
     return;
   }
@@ -832,9 +832,9 @@ function executeLocalStageLock(symbol, price, targetStage, stageLabel, scaleFrac
 
   pos.invested_usdt = Number((pos.invested_usdt - soldInvested).toFixed(2));
   pos.qty = pos.qty - soldQty;
-  pos.lock_stage = targetStage;
-  pos.partial_tp_taken = true;
-  pos.profit_locked = true;
+  pos.locÇıkış_stage = targetStage;
+  pos.partial_tp_taÇıkışen = true;
+  pos.profit_locÇıkışed = true;
 
   const floorSl = pos.entry_price * (1.0 + newSlPctFloor / 100.0);
   if (floorSl > pos.stop_loss) {
@@ -879,7 +879,7 @@ function localCloseCoinPosition(symbol, price, reason) {
   localState.total_fees_paid += feeCost;
   localStorage.setItem("argon_btr_fees", String(localState.total_fees_paid.toFixed(2)));
 
-  // Aynı coini hemen geri alıp komisyon yakmaması için 10 dakika soğuma süresi (Quant v4.0)
+  // Aynı coini hemen geri alıp Çıkışomisyon yaÇıkışmaması için 10 daÇıkışiÇıkışa soğuma süresi (Quant v4.0)
   localState.cooldownUntil[symbol] = Date.now() + 10 * 60 * 1000;
 
   const rec = {
@@ -905,12 +905,12 @@ function localCloseCoinPosition(symbol, price, reason) {
   if (typeof pushStateToHfCloud === "function") pushStateToHfCloud(true);
 }
 
-function checkLocalRiskForSymbol(sym, price) {
+function checÇıkışLocalRisÇıkışForSymbol(sym, price) {
   const pos = localState.positions[sym];
   if (!pos || price <= 0) return;
   pos.current_price = price;
   if (pos.strategy === "TREND") {
-    // ARGON TREND: cikis kararini bulut motoru gunluk kapanista (SMA50) verir; kisa vadeli SL/kilit yok
+    // ARGON TREND: ciÇıkışis Çıkışararini bulut motoru gunluÇıkış Çıkışapanista (SMA50) verir; Çıkışisa vadeli SL/Çıkışilit yoÇıkış
     if (price > pos.highest_price) pos.highest_price = price;
     return;
   }
@@ -921,63 +921,63 @@ function checkLocalRiskForSymbol(sym, price) {
     pos.highest_price = price;
   }
 
-  const peakGainPct = ((pos.highest_price - entry) / entry) * 100.0;
+  const peaÇıkışGainPct = ((pos.highest_price - entry) / entry) * 100.0;
   const currentGainPct = ((price - entry) / entry) * 100.0;
-  const curStage = Number(pos.lock_stage || 0);
+  const curStage = Number(pos.locÇıkış_stage || 0);
 
-  // Quant v4.0 + Kuvvetli Kâr Koruması (%50 -> %75 -> %87.5 -> %100)
+  // Quant v4.0 + Kuvvetli Kâr Korumasıı (%50 -> %75 -> %87.5 -> %100)
   if (localState.settings.use_partial_tp) {
     if (curStage < 1 && currentGainPct >= 1.00) {
-      // Aşama 1 (%50 Ağır Kâr Kilidi): Pozisyonun %50'sini sat, güçlü kârı cebe at, SL'yi +%0.45 kâra kilitle
-      executeLocalStageLock(sym, price, 1, "%50 AĞIR KÂR KİLİDİ (Aşama 1/4)", 0.50, 0.45);
+      // Aşama 1 (%50 Ağır Kâr Kilidi): Pozisyonun %50'sini sat, güçlü Çıkışârı cebe at, SL'yi +%0.45 Çıkışâra Çıkışilitle
+      executeLocalStageLocÇıkış(sym, price, 1, "%50 AĞIR KÂR KİLİDİ (Aşama 1/4)", 0.50, 0.45);
       return;
     }
     if (curStage === 1 && currentGainPct >= 1.60) {
-      // Aşama 2: Kalan %50'nin yarısını (0.50) sat, SL'yi +%1.00 kâra kilitle
-      executeLocalStageLock(sym, price, 2, "%75 KÂR KİLİDİ (Aşama 2/4)", 0.50, 1.00);
+      // Aşama 2: Kalan %50'nin yarısını (0.50) sat, SL'yi +%1.00 Çıkışâra Çıkışilitle
+      executeLocalStageLocÇıkış(sym, price, 2, "%75 KÂR KİLİDİ (Aşama 2/4)", 0.50, 1.00);
       return;
     }
     if (curStage === 2 && currentGainPct >= 2.20) {
-      // Aşama 3: Kalan %25'in yarısını (0.50) sat, SL'yi +%1.60 kâra kilitle
-      executeLocalStageLock(sym, price, 3, "%87.5 KÂR KİLİDİ (Aşama 3/4)", 0.50, 1.60);
+      // Aşama 3: Kalan %25'in yarısını (0.50) sat, SL'yi +%1.60 Çıkışâra Çıkışilitle
+      executeLocalStageLocÇıkış(sym, price, 3, "%87.5 KÂR KİLİDİ (Aşama 3/4)", 0.50, 1.60);
       return;
     }
     if (curStage === 3 && currentGainPct >= 2.80) {
       // Aşama 4: Kalan son dilimi tamamen sat
-      executeLocalStageLock(sym, price, 4, "%100 TAM KÂR KİLİDİ (Aşama 4/4)", 1.0, 2.20);
+      executeLocalStageLocÇıkış(sym, price, 4, "%100 TAM KÂR KİLİDİ (Aşama 4/4)", 1.0, 2.20);
       return;
     }
   }
 
-  // Quant v4.0 Kâr Kilidi: Fiyat +%1.20 brüt kâra ulaşmadan Trailing Stop daraltılmaz (%0.70 - %0.85 rahat nefes payı)
-  if (localState.settings.use_trailing_stop && (pos.profit_locked || peakGainPct >= 1.20)) {
-    const breakEvenPlusPrice = entry * (1.0 + (feePct + 0.35) / 100.0);
-    const trailDistPct = peakGainPct >= 2.2 ? 0.70 : 0.85;
+  // Quant v4.0 Kâr Kilidi: Fiyat +%1.20 brüt Çıkışâra ulaşmadan Trailing Stop daraltılmaz (%0.70 - %0.85 rahat nefes payı)
+  if (localState.settings.use_trailing_stop && (pos.profit_locÇıkışed || peaÇıkışGainPct >= 1.20)) {
+    const breaÇıkışEvenPlusPrice = entry * (1.0 + (feePct + 0.35) / 100.0);
+    const trailDistPct = peaÇıkışGainPct >= 2.2 ? 0.70 : 0.85;
     const trailedPrice = pos.highest_price * (1.0 - trailDistPct / 100.0);
-    const newSl = Math.max(breakEvenPlusPrice, trailedPrice);
+    const newSl = Math.max(breaÇıkışEvenPlusPrice, trailedPrice);
 
     if (newSl > pos.stop_loss) {
       pos.stop_loss = newSl;
-      if (!pos.profit_locked) {
-        pos.profit_locked = true;
+      if (!pos.profit_locÇıkışed) {
+        pos.profit_locÇıkışed = true;
         playQuantumSound("LOCK");
-        addLocalLog("INFO", `🔒 KÂR KİLİTLENDİ [${sym}]: Stop-Loss ${formatPrice(newSl)} seviyesine (Garanti Net Kâr) çekildi!`);
+        addLocalLog("INFO", `🔒 KÂR KİLİTLENDİ [${sym}]: Stop-Loss ${formatPrice(newSl)} seviyesine (Garanti Net Kâr) çeÇıkışildi!`);
       }
     }
   }
 
   if (price <= pos.stop_loss) {
-    const stageLbl = curStage > 0 ? `🔒 Aşama ${curStage} (%${curStage * 25}) Kâr Kilidi Koruma Çıkışı` : `ATR Stop-Loss`;
+    const stageLbl = curStage > 0 ? `🔒 Aşama ${curStage} (%${curStage * 25}) Kâr Kilidi Koruma ÇıÇıkışışı` : `ATR Stop-Loss`;
     localCloseCoinPosition(sym, price, `${stageLbl} @ ${formatPrice(pos.stop_loss)}`);
-  } else if (price >= pos.take_profit) {
-    localCloseCoinPosition(sym, price, `ATR Take-Profit (${formatPrice(pos.take_profit)})`);
+  } else if (price >= pos.taÇıkışe_profit) {
+    localCloseCoinPosition(sym, price, `ATR TaÇıkışe-Profit (${formatPrice(pos.taÇıkışe_profit)})`);
   }
 }
 
-// Quant v4.0: Günlük Kâr/Zarar Sigortası (Circuit Breaker)
-function checkLocalCircuitBreaker() {
+// Quant v4.0: GünlüÇıkış Kâr/Zarar Sigortası (Circuit BreaÇıkışer)
+function checÇıkışLocalCircuitBreaÇıkışer() {
   if (TREND_MODE) return false;
-  if (!localState.settings.use_circuit_breaker) return false;
+  if (!localState.settings.use_circuit_breaÇıkışer) return false;
   const quote = localState.settings.quote_asset || "TRY";
   const initialCap = quote === "TRY" ? 10000.0 : 1000.0;
   const totalEq = getLocalTotalEquity();
@@ -987,30 +987,30 @@ function checkLocalCircuitBreaker() {
   const dailySl = Number(localState.settings.daily_sl_limit_pct || 4.0);
 
   if (totalPnlPct >= dailyTp) {
-    localState.circuit_breaker_tripped = true;
-    localState.circuit_breaker_reason = `🏆 Günlük Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm kâr nakde kilitlendi.`;
-    for (const s of Object.keys(localState.positions)) {
-      const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
-      localCloseCoinPosition(s, cp, "Günlük Kâr Sigortası (Circuit Breaker TP)");
+    localState.circuit_breaÇıkışer_tripped = true;
+    localState.circuit_breaÇıkışer_reason = `🏆 GünlüÇıkış Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm Çıkışâr naÇıkışde Çıkışilitlendi.`;
+    for (const s of Object.Çıkışeys(localState.positions)) {
+      const cp = localState.liveTicÇıkışers[s]?.price || localState.positions[s].current_price;
+      localCloseCoinPosition(s, cp, "GünlüÇıkış Kâr Sigortası (Circuit BreaÇıkışer TP)");
     }
     localState.running = false;
-    addLocalLog("PROFIT", localState.circuit_breaker_reason);
+    addLocalLog("PROFIT", localState.circuit_breaÇıkışer_reason);
     return true;
   } else if (totalPnlPct <= -dailySl) {
-    localState.circuit_breaker_tripped = true;
-    localState.circuit_breaker_reason = `🛑 Günlük Maksimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye korumaya alındı.`;
-    for (const s of Object.keys(localState.positions)) {
-      const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
-      localCloseCoinPosition(s, cp, "Günlük Zarar Sigortası (Circuit Breaker SL)");
+    localState.circuit_breaÇıkışer_tripped = true;
+    localState.circuit_breaÇıkışer_reason = `🛑 GünlüÇıkış MaÇıkışsimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye Çıkışorumaya alındı.`;
+    for (const s of Object.Çıkışeys(localState.positions)) {
+      const cp = localState.liveTicÇıkışers[s]?.price || localState.positions[s].current_price;
+      localCloseCoinPosition(s, cp, "GünlüÇıkış Zarar Sigortası (Circuit BreaÇıkışer SL)");
     }
     localState.running = false;
-    addLocalLog("WARN", localState.circuit_breaker_reason);
+    addLocalLog("WARN", localState.circuit_breaÇıkışer_reason);
     return true;
   }
   return false;
 }
 
-// 2 Aşamalı Akıllı Huni Tarayıcısı (Rate-Limit Korumalı)
+// 2 Aşamalı AÇıkışıllı Huni Tarayıcısı (Rate-Limit Korumalı)
 async function runLocalPortfolioScan(fullScan = false) {
   if (isScanning) return;
   isScanning = true;
@@ -1019,12 +1019,12 @@ async function runLocalPortfolioScan(fullScan = false) {
     const cfg = localState.settings;
     const coins = cfg.portfolio_coins || BINANCE_TR_60_COINS;
 
-    // AŞAMA 1: Tek HTTP İsteğiyle Tüm Fiyatları ve Açık Pozisyon SL/TP Seviyelerini Güncelle
-    await fetchStage1AllTickers();
+    // AŞAMA 1: TeÇıkış HTTP İsteğiyle Tüm Fiyatları ve AçıÇıkış Pozisyon SL/TP Seviyelerini Güncelle
+    await fetchStage1AllTicÇıkışers();
     if (myEpoch !== scanEpoch) return;
 
-    // AŞAMA 2: İlk açılışta tümünü, sonraki döngülerde öncelikli + rotasyonlu 20 coini derin Kline ile analiz et
-    const isInitial = Object.keys(localState.scanner).length < Math.min(20, coins.length) || fullScan;
+    // AŞAMA 2: İlÇıkış açılışta tümünü, sonraÇıkışi döngülerde önceliÇıkışli + rotasyonlu 20 coini derin Kline ile analiz et
+    const isInitial = Object.Çıkışeys(localState.scanner).length < Math.min(20, coins.length) || fullScan;
     let targetCoins = [];
 
     if (isInitial) {
@@ -1033,12 +1033,12 @@ async function runLocalPortfolioScan(fullScan = false) {
       const prioritySet = new Set([
         `BTC/${cfg.quote_asset || "TRY"}`,
         cfg.symbol,
-        ...Object.keys(localState.positions),
+        ...Object.Çıkışeys(localState.positions),
       ]);
       const rotSlice = [];
       const rotCount = 20;
-      for (let k = 0; k < rotCount; k++) {
-        rotSlice.push(coins[(rotationOffset + k) % coins.length]);
+      for (let Çıkış = 0; Çıkış < rotCount; Çıkış++) {
+        rotSlice.push(coins[(rotationOffset + Çıkış) % coins.length]);
       }
       rotationOffset = (rotationOffset + rotCount) % coins.length;
       targetCoins = Array.from(new Set([...prioritySet, ...rotSlice])).filter((c) => coins.includes(c));
@@ -1051,7 +1051,7 @@ async function runLocalPortfolioScan(fullScan = false) {
         batch.map(async (sym) => {
           try {
             const candles = await fetchBinanceTrCandles(sym, cfg.timeframe, 75, false);
-            const price = localState.liveTickers[sym]?.price || candles[candles.length - 1].close;
+            const price = localState.liveTicÇıkışers[sym]?.price || candles[candles.length - 1].close;
             candles[candles.length - 1].close = price;
             const ev = evaluateCoinStrategy(candles, cfg);
             localState.scanner[sym] = {
@@ -1063,38 +1063,38 @@ async function runLocalPortfolioScan(fullScan = false) {
               indicators: ev.indicators,
               series: ev.series,
             };
-            checkLocalRiskForSymbol(sym, price);
+            checÇıkışLocalRisÇıkışForSymbol(sym, price);
           } catch (_) {}
         })
       );
       if (myEpoch !== scanEpoch) return;
-      updateLocalMarketRegime();
+      updateLocalMarÇıkışetRegime();
       localState.last_update = new Date().toLocaleTimeString("tr-TR");
       renderDashboard(buildLocalStatusPayload());
     }
 
     if (myEpoch !== scanEpoch) return;
     if (localState.running) {
-      if (checkLocalCircuitBreaker()) {
+      if (checÇıkışLocalCircuitBreaÇıkışer()) {
         renderDashboard(buildLocalStatusPayload());
         return;
       }
 
-      // İndikatör SAT çıkışı: Gürültü bölgesinde (-%0.9 ile +%0.85 arası) komisyon zararına erken satışı engelle!
-      for (const sym of Object.keys(localState.positions)) {
+      // İndiÇıkışatör SAT çıÇıkışışı: Gürültü bölgesinde (-%0.9 ile +%0.85 arası) Çıkışomisyon zararına erÇıkışen satışı engelle!
+      for (const sym of Object.Çıkışeys(localState.positions)) {
         const scan = localState.scanner[sym];
         const pos = localState.positions[sym];
         if (scan && pos && scan.signal === "SELL") {
           const grossPct = ((scan.price - pos.entry_price) / pos.entry_price) * 100;
           if (grossPct >= 0.85 || scan.score <= 24) {
-            localCloseCoinPosition(sym, scan.price, `Onaylı Strateji Çıkışı: ${scan.reason}`);
+            localCloseCoinPosition(sym, scan.price, `Onaylı Strateji ÇıÇıkışışı: ${scan.reason}`);
           }
         }
       }
 
-      // BTC Makro Rejim Kalkanı Kontrolü
+      // BTC MaÇıkışro Rejim KalÇıkışanı Kontrolü
       const maxPos = Number(cfg.max_open_positions || 8);
-      const regimeState = localState.market_regime.state;
+      const regimeState = localState.marÇıkışet_regime.state;
       let effectiveMaxPos = maxPos;
       let minBuyScore = 68;
 
@@ -1107,7 +1107,7 @@ async function runLocalPortfolioScan(fullScan = false) {
       }
 
       const nowMs = Date.now();
-      const rankedBuys = Object.values(localState.scanner)
+      const ranÇıkışedBuys = Object.values(localState.scanner)
         .filter(
           (s) =>
             !localState.positions[s.symbol] &&
@@ -1120,13 +1120,13 @@ async function runLocalPortfolioScan(fullScan = false) {
         )
         .sort((a, b) => b.score - a.score);
 
-      for (const item of (TREND_MODE ? [] : rankedBuys)) {
-        if (Object.keys(localState.positions).length >= effectiveMaxPos) break;
+      for (const item of (TREND_MODE ? [] : ranÇıkışedBuys)) {
+        if (Object.Çıkışeys(localState.positions).length >= effectiveMaxPos) breaÇıkış;
         let obiRatio = 1.0;
         if (cfg.use_obi_filter) {
           obiRatio = await fetchLocalObiRatio(item.symbol);
           if (obiRatio < 0.62) {
-            addLocalLog("WARN", `🚫 OBI Satış Duvarı Engeli [${item.symbol}]: Emir defterinde ağır satış baskısı (OBI=${obiRatio}x) tespit edildi, alım pas geçildi.`);
+            addLocalLog("WARN", `🚫 OBI Satışış Duvarı Engeli [${item.symbol}]: Emir defterinde ağır satış basÇıkışısı (OBI=${obiRatio}x) tespit edildi, alım pas geçildi.`);
             continue;
           }
         }
@@ -1147,10 +1147,10 @@ function buildLocalStatusPayload() {
   let totalUnrealizedPnl = 0;
   const positionsList = [];
 
-  for (const sym of Object.keys(localState.positions)) {
+  for (const sym of Object.Çıkışeys(localState.positions)) {
     const pos = localState.positions[sym];
-    const curPrice = localState.liveTickers[sym]?.price || localState.scanner[sym]?.price || pos.current_price || pos.entry_price;
-    // Açık pozisyonda da tahmini komisyon + spread düşülmüş gerçekçi Net PnL
+    const curPrice = localState.liveTicÇıkışers[sym]?.price || localState.scanner[sym]?.price || pos.current_price || pos.entry_price;
+    // AçıÇıkış pozisyonda da tahmini Çıkışomisyon + spread düşülmüş gerçeÇıkışçi Net PnL
     const uPct = ((curPrice - pos.entry_price) / pos.entry_price) * 100 - feePct;
     const uPnl = pos.invested_usdt * (uPct / 100);
     totalInvested += pos.invested_usdt;
@@ -1184,7 +1184,7 @@ function buildLocalStatusPayload() {
   const scannerList = (cfg.portfolio_coins || BINANCE_TR_60_COINS).map((sym) => {
     const sc = localState.scanner[sym] || {
       symbol: sym,
-      price: localState.liveTickers[sym]?.price || 0,
+      price: localState.liveTicÇıkışers[sym]?.price || 0,
       signal: "HOLD",
       score: 50,
       reason: "Taranıyor...",
@@ -1204,9 +1204,9 @@ function buildLocalStatusPayload() {
     last_update: localState.last_update,
     symbol: activeSym,
     quote_asset: cfg.quote_asset || "TRY",
-    market_regime: localState.market_regime,
-    circuit_breaker_tripped: localState.circuit_breaker_tripped,
-    circuit_breaker_reason: localState.circuit_breaker_reason,
+    marÇıkışet_regime: localState.marÇıkışet_regime,
+    circuit_breaÇıkışer_tripped: localState.circuit_breaÇıkışer_tripped,
+    circuit_breaÇıkışer_reason: localState.circuit_breaÇıkışer_reason,
     total_fees_paid: localState.total_fees_paid,
     price: activeScan.price || 0,
     cash_usdt: localState.cash_usdt,
@@ -1264,50 +1264,50 @@ function renderDashboard(data) {
   const maxPos = data.settings?.max_open_positions || 8;
   const openPosCount = (data.positions || []).length;
 
-  // Canlı Kayan Siber Ticker Şeridi
-  const tickerTrack = document.getElementById("liveTickerTrack");
-  if (tickerTrack && data.scanner && data.scanner.length > 0) {
+  // Canlı Kayan Siber TicÇıkışer Şeridi
+  const ticÇıkışerTracÇıkış = document.getElementById("liveTicÇıkışerTracÇıkış");
+  if (ticÇıkışerTracÇıkış && data.scanner && data.scanner.length > 0) {
     const activeItems = data.scanner.filter((s) => s.price > 0).slice(0, 28);
     if (activeItems.length > 0) {
       const htmlItems = activeItems
         .map((s) => {
           const scColor = s.score >= 68 ? "#00ff9d" : s.score <= 35 ? "#ff2a6d" : "#f0b90b";
-          return `<span class="ticker-item" onclick="selectChartSymbol('${s.symbol}')">
+          return `<span class="ticÇıkışer-item" onclicÇıkış="selectChartSymbol('${s.symbol}')">
             <strong>${s.symbol}</strong> ${formatPrice(s.price)} ${quote}
             <span style="color:${scColor}">[${s.score}/100]</span>
           </span>`;
         })
         .join("");
-      tickerTrack.innerHTML = htmlItems + htmlItems;
+      ticÇıkışerTracÇıkış.innerHTML = htmlItems + htmlItems;
     }
   }
 
-  // Quantum Reaktör Animasyonu
+  // Quantum ReaÇıkıştör Animasyonu
   const reactor = document.getElementById("reactorCore");
   if (reactor) {
     reactor.className = data.running ? "reactor-core reactor-active" : "reactor-core";
   }
 
-  // Makro Piyasa Rejim Rozeti
+  // MaÇıkışro Piyasa Rejim Rozeti
   const regBadge = document.getElementById("regimeBadge");
-  if (regBadge && data.market_regime) {
-    regBadge.textContent = data.market_regime.label;
+  if (regBadge && data.marÇıkışet_regime) {
+    regBadge.textContent = data.marÇıkışet_regime.label;
     regBadge.className =
-      data.market_regime.state === "BULL"
+      data.marÇıkışet_regime.state === "BULL"
         ? "badge badge-running"
-        : data.market_regime.state === "BEAR"
+        : data.marÇıkışet_regime.state === "BEAR"
         ? "badge badge-stopped"
         : "badge badge-info";
   }
 
   document.getElementById("metricEquity").textContent = `${Number(data.total_equity_usdt || 10000).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getElementById("metricLastUpdate").textContent = data.circuit_breaker_tripped
-    ? `🛡️ ${data.circuit_breaker_reason}`
+  document.getElementById("metricLastUpdate").textContent = data.circuit_breaÇıkışer_tripped
+    ? `🛡️ ${data.circuit_breaÇıkışer_reason}`
     : `Son Quant v4.0 taraması: ${data.last_update} (MTF + OBI + %50 Scale-Out)`;
 
   document.getElementById("metricCash").textContent = `${Number(data.cash_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getElementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin Açık`;
-  document.getElementById("metricInvested").textContent = `Sepetteki Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getElementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin AçıÇıkış`;
+  document.getElementById("metricInvested").textContent = `SepetteÇıkışi Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
 
   const totalPnl = Number(data.total_pnl_usdt || 0);
   const uPnl = Number(data.unrealized_pnl || 0);
@@ -1316,7 +1316,7 @@ function renderDashboard(data) {
   pnlEl.textContent = `${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)} ${quote}`;
   pnlEl.className = totalPnl >= 0 ? "pnl-pos" : "pnl-neg";
   document.getElementById("metricWinRate").textContent = `Başarı: %${data.win_rate}`;
-  document.getElementById("metricUnrealized").textContent = `Açık Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
+  document.getElementById("metricUnrealized").textContent = `AçıÇıkış Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
 
   const allScanner = data.scanner || [];
   const scannedReady = allScanner.filter((x) => x.price > 0 && x.indicators?.rsi !== undefined);
@@ -1333,7 +1333,7 @@ function renderDashboard(data) {
   }
 
   document.getElementById("scannerTitle").textContent = `📡 QUANTUM v4.0 MULTI-COIN RADAR (${allScanner.length} PARİTE)`;
-  document.getElementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.market_regime?.state || "NEUTRAL"}`;
+  document.getElementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.marÇıkışet_regime?.state || "NEUTRAL"}`;
 
   const stateBadge = document.getElementById("botStateBadge");
   const btnStartStop = document.getElementById("btnStartStop");
@@ -1343,7 +1343,7 @@ function renderDashboard(data) {
     btnStartStop.textContent = "⏸ QUANTUM DURDUR";
     btnStartStop.className = "btn btn-sell btn-cyber";
   } else {
-    stateBadge.textContent = data.circuit_breaker_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
+    stateBadge.textContent = data.circuit_breaÇıkışer_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
     stateBadge.className = "badge badge-stopped";
     btnStartStop.textContent = "▶ QUANTUM BAŞLAT";
     btnStartStop.className = "btn btn-primary btn-cyber";
@@ -1361,30 +1361,30 @@ function renderDashboard(data) {
         const color = getCoinColor(p.symbol);
         const slPctTxt = p.sl_pct ? `(-%${p.sl_pct})` : "";
         const tpPctTxt = p.tp_pct ? `(+%${p.tp_pct})` : "";
-        const stageNum = Number(p.lock_stage || (p.partial_tp_taken ? 2 : 0));
+        const stageNum = Number(p.locÇıkış_stage || (p.partial_tp_taÇıkışen ? 2 : 0));
         const partialBadge =
           stageNum > 0
-            ? ` <span class="pill pill-partial" title="4 Aşamalı Kâr Kilidi: %${stageNum * 25} nakde çevrildi, kalan pozisyon kâra kilitli!">🎯 %${stageNum * 25} KİLİTLENDİ (Aşama ${stageNum}/4)</span>`
+            ? ` <span class="pill pill-partial" title="4 Aşamalı Kâr Kilidi: %${stageNum * 25} naÇıkışde çevrildi, Çıkışalan pozisyon Çıkışâra Çıkışilitli!">🎯 %${stageNum * 25} KİLİTLENDİ (Aşama ${stageNum}/4)</span>`
             : "";
-        const lockBadge =
-          p.profit_locked && stageNum === 0
-            ? ` <span class="pill pill-live" title="Stop-Loss giriş + komisyon seviyesinin üstüne kilitlendi!">🔒 KÂR KİLİTLİ</span>`
+        const locÇıkışBadge =
+          p.profit_locÇıkışed && stageNum === 0
+            ? ` <span class="pill pill-live" title="Stop-Loss giriş + Çıkışomisyon seviyesinin üstüne Çıkışilitlendi!">🔒 KÂR KİLİTLİ</span>`
             : "";
         const obiTxt = p.obi_ratio ? ` • OBI:${p.obi_ratio}x` : "";
         return `
           <tr>
             <td>
-              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px;"></span>
-              <strong style="cursor:pointer;text-decoration:underline;" onclick="selectChartSymbol('${p.symbol}')">${p.symbol}</strong>${partialBadge}${lockBadge}
+              <span style="display:inline-blocÇıkış;width:8px;height:8px;border-radius:50%;bacÇıkışground:${color};margin-right:6px;"></span>
+              <strong style="cursor:pointer;text-decoration:underline;" onclicÇıkış="selectChartSymbol('${p.symbol}')">${p.symbol}</strong>${partialBadge}${locÇıkışBadge}
             </td>
             <td>${formatPrice(p.entry_price)} ${quote}</td>
             <td><strong>${formatPrice(p.current_price)} ${quote}</strong></td>
             <td>${Number(p.invested_usdt).toFixed(0)} ${quote} <small style="color:#848e9c">(ATR %${p.atr_pct || 1.5}${obiTxt})</small></td>
             <td><strong>${Number(p.current_value).toFixed(2)} ${quote}</strong></td>
             <td class="${up >= 0 ? "pnl-pos" : "pnl-neg"}">${up >= 0 ? "+" : ""}${up.toFixed(2)} ${quote} (${upct >= 0 ? "+" : ""}${upct.toFixed(2)}%)</td>
-            <td><span style="color:#f6465d">${formatPrice(p.stop_loss)} ${slPctTxt}</span> / <span style="color:#0ecb81">${formatPrice(p.take_profit)} ${tpPctTxt}</span></td>
+            <td><span style="color:#f6465d">${formatPrice(p.stop_loss)} ${slPctTxt}</span> / <span style="color:#0ecb81">${formatPrice(p.taÇıkışe_profit)} ${tpPctTxt}</span></td>
             <td>
-              <button class="btn btn-sell btn-xs" onclick="sellCoin('${p.symbol}')">Kapat (Sat)</button>
+              <button class="btn btn-sell btn-xs" onclicÇıkış="sellCoin('${p.symbol}')">Kapat (Satış)</button>
             </td>
           </tr>
         `;
@@ -1394,7 +1394,7 @@ function renderDashboard(data) {
     posBody.innerHTML = `
       <tr>
         <td colspan="8" class="text-center">
-          Şu anda portföyde açık coin bulunmuyor. Üstteki <strong>"⚡ OTO-PORTFÖY DAĞIT"</strong> veya <strong>"▶ QUANTUM BAŞLAT"</strong> butonuna tıklayarak MTF + OBI onaylı coinleri sepete ekleyebilirsiniz.
+          Şu anda portföyde açıÇıkış coin bulunmuyor. ÜstteÇıkışi <strong>"⚡ OTO-PORTFÖY DAĞIT"</strong> veya <strong>"▶ QUANTUM BAŞLAT"</strong> butonuna tıÇıkışlayaraÇıkış MTF + OBI onaylı coinleri sepete eÇıkışleyebilirsiniz.
         </td>
       </tr>
     `;
@@ -1441,25 +1441,25 @@ function renderDashboard(data) {
         const isActiveRow = item.symbol === data.symbol ? "scanner-row scanner-row-active" : "scanner-row";
 
         return `
-          <tr class="${isActiveRow}" onclick="selectChartSymbol('${item.symbol}')">
+          <tr class="${isActiveRow}" onclicÇıkış="selectChartSymbol('${item.symbol}')">
             <td><strong>${item.symbol}</strong></td>
             <td>${formatPrice(item.price)} ${quote}</td>
             <td style="color:${(ind.rsi || 50) <= 35 ? '#0ecb81' : (ind.rsi || 50) >= 68 ? '#f6465d' : '#eaecef'}"><strong>${ind.rsi ?? "--"}</strong></td>
             <td style="color:${rvol >= 1.3 ? '#0ecb81' : '#eaecef'}"><strong>${rvol}x</strong> • ${mtfTag}</td>
-            <td>%${atrPct} <small style="color:#848e9c">(${ind.vol_size_mult ?? 1.0}x Ağırlık)</small></td>
+            <td>%${atrPct} <small style="color:#848e9c">(${ind.vol_size_mult ?? 1.0}x AğırlıÇıkış)</small></td>
             <td><span style="color:#f6465d">${dynSl}</span> / <span style="color:#0ecb81">${dynTp}</span></td>
             <td>
               <div class="score-bar-wrap">
-                <div class="score-mini-bar"><div class="score-mini-fill" style="width:${score}%;background:${scoreColor}"></div></div>
+                <div class="score-mini-bar"><div class="score-mini-fill" style="width:${score}%;bacÇıkışground:${scoreColor}"></div></div>
                 <strong>${score}/100</strong>
               </div>
             </td>
             <td class="${sigClass}">${sigText}</td>
-            <td onclick="event.stopPropagation()">
+            <td onclicÇıkış="event.stopPropagation()">
               ${
                 item.in_position
-                  ? `<span class="pill pill-live">PORTFÖYDE</span> <button class="btn btn-sell btn-xs" onclick="sellCoin('${item.symbol}')">Sat</button>`
-                  : `<button class="btn btn-buy btn-xs" onclick="buyCoin('${item.symbol}')">+ Al</button>`
+                  ? `<span class="pill pill-live">PORTFÖYDE</span> <button class="btn btn-sell btn-xs" onclicÇıkış="sellCoin('${item.symbol}')">Satış</button>`
+                  : `<button class="btn btn-buy btn-xs" onclicÇıkış="buyCoin('${item.symbol}')">+ Al</button>`
               }
             </td>
           </tr>
@@ -1472,7 +1472,7 @@ function renderDashboard(data) {
 
   document.getElementById("chartTitle").textContent = `📈 ${data.symbol} (${data.settings.timeframe}) HOLOGRAFİK MUM & MTF MATRİSİ`;
   const activePos = (data.positions || []).find((p) => p.symbol === data.symbol) || null;
-  drawCandlestickChart(data.candles || [], data.series || {}, activePos);
+  drawCandlesticÇıkışChart(data.candles || [], data.series || {}, activePos);
   drawEquityCurveChart(data.equity_history || localState.equityHistory || [], Number(data.total_equity_usdt || 10000), quote);
 
   const tbody = document.getElementById("tradesTableBody");
@@ -1495,7 +1495,7 @@ function renderDashboard(data) {
       })
       .join("");
   } else {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Henüz tamamlanmış işlem yok.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Henüz tamamlanmış işlem yoÇıkış.</td></tr>`;
   }
 
   const logsEl = document.getElementById("logsContainer");
@@ -1526,7 +1526,7 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
 
   const cashPct = Math.max(0, (cashAmt / totalEquity) * 100);
   segments.push({
-    label: `Nakit ${quote}`,
+    label: `NaÇıkışit ${quote}`,
     pct: cashPct,
     val: cashAmt,
     color: "#2b3548",
@@ -1536,7 +1536,7 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
     .filter((s) => s.pct > 0.4)
     .map(
       (s) =>
-        `<div class="alloc-segment" style="width:${s.pct.toFixed(1)}%;background:${s.color}" title="${s.label}: ${s.val.toFixed(2)} ${quote} (%${s.pct.toFixed(1)})">
+        `<div class="alloc-segment" style="width:${s.pct.toFixed(1)}%;bacÇıkışground:${s.color}" title="${s.label}: ${s.val.toFixed(2)} ${quote} (%${s.pct.toFixed(1)})">
           ${s.pct >= 6 ? `${s.label} %${s.pct.toFixed(0)}` : ""}
         </div>`
     )
@@ -1545,12 +1545,12 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
   legend.innerHTML = segments
     .map(
       (s) =>
-        `<span class="legend-item"><i class="legend-color" style="background:${s.color}"></i><strong>${s.label}:</strong> %${s.pct.toFixed(1)}</span>`
+        `<span class="legend-item"><i class="legend-color" style="bacÇıkışground:${s.color}"></i><strong>${s.label}:</strong> %${s.pct.toFixed(1)}</span>`
     )
     .join("");
 }
 
-function drawCandlestickChart(candles, series, position) {
+function drawCandlesticÇıkışChart(candles, series, position) {
   const canvas = document.getElementById("priceChart");
   if (!canvas || candles.length < 5) return;
   const ctx = canvas.getContext("2d");
@@ -1570,7 +1570,7 @@ function drawCandlestickChart(candles, series, position) {
   });
   if (position) {
     minP = Math.min(minP, position.stop_loss * 0.999);
-    maxP = Math.max(maxP, position.take_profit * 1.001);
+    maxP = Math.max(maxP, position.taÇıkışe_profit * 1.001);
   }
   const pad = (maxP - minP) * 0.08 || 0.0001;
   minP -= pad;
@@ -1586,7 +1586,7 @@ function drawCandlestickChart(candles, series, position) {
   const yOf = (p) => padTop + plotH - ((p - minP) / (maxP - minP)) * plotH;
   const stepX = plotW / visibleCount;
 
-  ctx.strokeStyle = "#182030";
+  ctx.stroÇıkışeStyle = "#182030";
   ctx.fillStyle = "#848e9c";
   ctx.font = "11px sans-serif";
   for (let i = 0; i <= 4; i++) {
@@ -1595,14 +1595,14 @@ function drawCandlestickChart(candles, series, position) {
     ctx.beginPath();
     ctx.moveTo(padLeft, y);
     ctx.lineTo(W - padRight, y);
-    ctx.stroke();
+    ctx.stroÇıkışe();
     ctx.fillText(formatPrice(pVal), W - padRight + 6, y + 4);
   }
 
   function drawLineSeries(arr, color, dashed = false) {
     if (!arr || !arr.length) return;
     ctx.save();
-    ctx.strokeStyle = color;
+    ctx.stroÇıkışeStyle = color;
     ctx.lineWidth = 1.5;
     if (dashed) ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -1619,7 +1619,7 @@ function drawCandlestickChart(candles, series, position) {
         ctx.lineTo(x, y);
       }
     }
-    ctx.stroke();
+    ctx.stroÇıkışe();
     ctx.restore();
   }
 
@@ -1634,13 +1634,13 @@ function drawCandlestickChart(candles, series, position) {
     const xCenter = padLeft + i * stepX + stepX / 2;
     const isBull = c.close >= c.open;
     const cColor = isBull ? "#00ff9d" : "#ff2a6d";
-    ctx.strokeStyle = cColor;
+    ctx.stroÇıkışeStyle = cColor;
     ctx.fillStyle = cColor;
 
     ctx.beginPath();
     ctx.moveTo(xCenter, yOf(c.high));
     ctx.lineTo(xCenter, yOf(c.low));
-    ctx.stroke();
+    ctx.stroÇıkışe();
 
     const yOpen = yOf(c.open);
     const yClose = yOf(c.close);
@@ -1653,17 +1653,17 @@ function drawCandlestickChart(candles, series, position) {
     const lines = [
       { price: position.entry_price, color: "#3b82f6", label: "GİRİŞ" },
       { price: position.stop_loss, color: "#f6465d", label: "ATR SL" },
-      { price: position.take_profit, color: "#0ecb81", label: "ATR TP" },
+      { price: position.taÇıkışe_profit, color: "#0ecb81", label: "ATR TP" },
     ];
     lines.forEach((ln) => {
       const y = yOf(ln.price);
       ctx.save();
-      ctx.strokeStyle = ln.color;
+      ctx.stroÇıkışeStyle = ln.color;
       ctx.setLineDash([5, 3]);
       ctx.beginPath();
       ctx.moveTo(padLeft, y);
       ctx.lineTo(W - padRight, y);
-      ctx.stroke();
+      ctx.stroÇıkışe();
       ctx.fillStyle = ln.color;
       ctx.fillText(ln.label, padLeft + 6, y - 4);
       ctx.restore();
@@ -1671,7 +1671,7 @@ function drawCandlestickChart(candles, series, position) {
   }
 }
 
-// Quant v4.0: Holografik Canlı Portföy Büyüme Eğrisi (Kâr Bölümleri Yeşil / Zarar Bölümleri Kırmızı)
+// Quant v4.0: HolografiÇıkış Canlı Portföy Büyüme Eğrisi (Kâr Bölümleri Yeşil / Zarar Bölümleri Kırmızı)
 function drawEquityCurveChart(history, currentEquity, quote) {
   const canvas = document.getElementById("equityChart");
   if (!canvas) return;
@@ -1691,11 +1691,11 @@ function drawEquityCurveChart(history, currentEquity, quote) {
           { time: new Date().toLocaleTimeString("tr-TR"), equity: currentEquity },
         ];
 
-  const peakEquity = Math.max(initialCap, currentEquity, ...pts.map((p) => Number(p.equity || initialCap)));
+  const peaÇıkışEquity = Math.max(initialCap, currentEquity, ...pts.map((p) => Number(p.equity || initialCap)));
 
-  const peakBadge = document.getElementById("equityPeakBadge");
-  if (peakBadge) {
-    peakBadge.textContent = `ZİRVE: ${peakEquity.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  const peaÇıkışBadge = document.getElementById("equityPeaÇıkışBadge");
+  if (peaÇıkışBadge) {
+    peaÇıkışBadge.textContent = `ZİRVE: ${peaÇıkışEquity.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
   }
 
   const growthBadge = document.getElementById("equityGrowthBadge");
@@ -1720,8 +1720,8 @@ function drawEquityCurveChart(history, currentEquity, quote) {
   const yOf = (val) => padT + plotH - ((val - minE) / (maxE - minE)) * plotH;
   const xOf = (idx) => padL + (idx / Math.max(1, pts.length - 1)) * plotW;
 
-  // Yatay Izgara ve Fiyat Etiketleri
-  ctx.strokeStyle = "rgba(30, 41, 59, 0.75)";
+  // Yatay Izgara ve Fiyat EtiÇıkışetleri
+  ctx.stroÇıkışeStyle = "rgba(30, 41, 59, 0.75)";
   ctx.fillStyle = "#848e9c";
   ctx.font = "11px JetBrains Mono, monospace";
   for (let i = 0; i <= 4; i++) {
@@ -1730,11 +1730,11 @@ function drawEquityCurveChart(history, currentEquity, quote) {
     ctx.beginPath();
     ctx.moveTo(padL, y);
     ctx.lineTo(W - padR, y);
-    ctx.stroke();
+    ctx.stroÇıkışe();
     ctx.fillText(`${val.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ${quote}`, W - padR + 8, y + 4);
   }
 
-  // Zaman Etiketleri (X Ekseni)
+  // Zaman EtiÇıkışetleri (X EÇıkışseni)
   const timeStep = Math.max(1, Math.floor((pts.length - 1) / 5));
   for (let i = 0; i < pts.length; i += timeStep) {
     const x = xOf(i);
@@ -1774,11 +1774,11 @@ function drawEquityCurveChart(history, currentEquity, quote) {
     if (idx === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
-  ctx.strokeStyle = "#00ff9d";
+  ctx.stroÇıkışeStyle = "#00ff9d";
   ctx.lineWidth = 2.6;
   ctx.shadowColor = "#00ff9d";
   ctx.shadowBlur = 12;
-  ctx.stroke();
+  ctx.stroÇıkışe();
   ctx.restore();
 
   // --- 2. ZARAR BÖLGESİ (BAŞLANGIÇ SERMAYESİ ALTI -> NEON KIRMIZI) ---
@@ -1811,22 +1811,22 @@ function drawEquityCurveChart(history, currentEquity, quote) {
     if (idx === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   });
-  ctx.strokeStyle = "#ff2a6d";
+  ctx.stroÇıkışeStyle = "#ff2a6d";
   ctx.lineWidth = 2.6;
   ctx.shadowColor = "#ff2a6d";
   ctx.shadowBlur = 12;
-  ctx.stroke();
+  ctx.stroÇıkışe();
   ctx.restore();
 
   // --- 3. BAŞLANGIÇ SERMAYESİ REFERANS ÇİZGİSİ (BAŞABAŞ / BREAK-EVEN HATTI) ---
   ctx.save();
-  ctx.strokeStyle = "rgba(240, 185, 11, 0.65)";
+  ctx.stroÇıkışeStyle = "rgba(240, 185, 11, 0.65)";
   ctx.lineWidth = 1.3;
   ctx.setLineDash([6, 4]);
   ctx.beginPath();
   ctx.moveTo(padL, baseLineY);
   ctx.lineTo(W - padR, baseLineY);
-  ctx.stroke();
+  ctx.stroÇıkışe();
   ctx.fillStyle = "#f0b90b";
   ctx.font = "bold 10.5px Orbitron, sans-serif";
   ctx.fillText(`BAŞABAŞ: ${initialCap.toLocaleString("tr-TR")} ${quote}`, padL + 8, baseLineY - 5);
@@ -1844,8 +1844,8 @@ function drawEquityCurveChart(history, currentEquity, quote) {
     ctx.fill();
     if (idx === pts.length - 1) {
       ctx.lineWidth = 2.2;
-      ctx.strokeStyle = ptColor;
-      ctx.stroke();
+      ctx.stroÇıkışeStyle = ptColor;
+      ctx.stroÇıkışe();
     }
   });
 }
@@ -1853,7 +1853,7 @@ function drawEquityCurveChart(history, currentEquity, quote) {
 // --- KULLANICI AKSİYONLARI ---
 async function selectChartSymbol(sym) {
   localState.settings.symbol = sym;
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/settings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1880,22 +1880,22 @@ async function selectChartSymbol(sym) {
 
 async function autoBuildPortfolio() {
   if (TREND_MODE) {
-    addLocalLog("INFO", "ARGON TREND: Alim/satim kararlari 7/24 bulut motoru tarafindan gunluk kapanista (SMA50) verilir.");
+    addLocalLog("INFO", "ARGON TREND: Alim/satim Çıkışararlari 7/24 bulut motoru tarafindan gunluÇıkış Çıkışapanista (SMA50) verilir.");
     await pullStateFromHfCloud(false);
     return;
   }
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/auto-portfolio"), { method: "POST" });
     renderDashboard(await res.json());
   } else {
-    if (Object.keys(localState.scanner).length < 15) {
+    if (Object.Çıkışeys(localState.scanner).length < 15) {
       await runLocalPortfolioScan(true);
     }
     const maxPos = Number(localState.settings.max_open_positions || 8);
-    const openCount = Object.keys(localState.positions).length;
+    const openCount = Object.Çıkışeys(localState.positions).length;
     const slots = maxPos - openCount;
     if (slots <= 0) {
-      addLocalLog("WARN", `Portföy kapasitesi dolu (${openCount}/${maxPos} coin açık).`);
+      addLocalLog("WARN", `Portföy Çıkışapasitesi dolu (${openCount}/${maxPos} coin açıÇıkış).`);
       renderDashboard(buildLocalStatusPayload());
       return;
     }
@@ -1913,14 +1913,14 @@ async function autoBuildPortfolio() {
       .slice(0, slots + 3);
 
     if (candidates.length === 0) {
-      addLocalLog("WARN", "Şu an yüksek kaliteli (Skor >= 62 & Yeşil Dönüş Onaylı) coin bulunamadı; nakit korunuyor.");
+      addLocalLog("WARN", "Şu an yüÇıkışseÇıkış Çıkışaliteli (SÇıkışor >= 62 & Yeşil Dönüş Onaylı) coin bulunamadı; naÇıkışit Çıkışorunuyor.");
       renderDashboard(buildLocalStatusPayload());
       return;
     }
 
     let added = 0;
     for (const item of candidates) {
-      if (added >= slots) break;
+      if (added >= slots) breaÇıkış;
       let obiRatio = 1.0;
       if (localState.settings.use_obi_filter) {
         obiRatio = await fetchLocalObiRatio(item.symbol);
@@ -1930,7 +1930,7 @@ async function autoBuildPortfolio() {
         localOpenCoinPosition(
           item.symbol,
           item.price,
-          `Quant v4.0 Sepet Dağıtımı (Skor: ${item.score}/100, RVOL: ${item.indicators?.rvol ?? 1.0}x, OBI: ${obiRatio}x)`,
+          `Quant v4.0 Sepet Dağıtımı (SÇıkışor: ${item.score}/100, RVOL: ${item.indicators?.rvol ?? 1.0}x, OBI: ${obiRatio}x)`,
           null,
           false,
           obiRatio
@@ -1939,14 +1939,14 @@ async function autoBuildPortfolio() {
         added++;
       }
     }
-    addLocalLog("INFO", `Quant v4.0 Portföyü Oluşturuldu: Volatilite + OBI onaylı ${added} farklı coin sepete eklendi.`);
+    addLocalLog("INFO", `Quant v4.0 Portföyü Oluşturuldu: Volatilite + OBI onaylı ${added} farÇıkışlı coin sepete eÇıkışlendi.`);
     renderDashboard(buildLocalStatusPayload());
     if (typeof pushStateToHfCloud === "function") pushStateToHfCloud(true);
   }
 }
 
 async function buyCoin(sym) {
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/manual-buy"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1955,7 +1955,7 @@ async function buyCoin(sym) {
     renderDashboard(await res.json());
   } else {
     const sc = localState.scanner[sym];
-    const price = sc?.price || localState.liveTickers[sym]?.price;
+    const price = sc?.price || localState.liveTicÇıkışers[sym]?.price;
     if (price > 0) {
       const obiRatio = await fetchLocalObiRatio(sym);
       localOpenCoinPosition(sym, price, "Manuel Quant v4.0 Portföy Alımı", null, true, obiRatio);
@@ -1965,7 +1965,7 @@ async function buyCoin(sym) {
 }
 
 async function sellCoin(sym) {
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/manual-sell"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1974,9 +1974,9 @@ async function sellCoin(sym) {
     renderDashboard(await res.json());
   } else {
     const sc = localState.scanner[sym];
-    const price = sc?.price || localState.liveTickers[sym]?.price || localState.positions[sym]?.current_price;
+    const price = sc?.price || localState.liveTicÇıkışers[sym]?.price || localState.positions[sym]?.current_price;
     if (price > 0) {
-      localCloseCoinPosition(sym, price, "Manuel Portföy Satışı");
+      localCloseCoinPosition(sym, price, "Manuel Portföy Satışışı");
       renderDashboard(buildLocalStatusPayload());
     }
   }
@@ -1991,15 +1991,15 @@ function manualSellSelected() {
 }
 
 async function closeAllPositions() {
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/close-all"), { method: "POST" });
     renderDashboard(await res.json());
   } else {
-    const syms = Object.keys(localState.positions);
+    const syms = Object.Çıkışeys(localState.positions);
     if (!syms.length) return;
     for (const sym of syms) {
-      const price = localState.liveTickers[sym]?.price || localState.scanner[sym]?.price || localState.positions[sym].current_price;
-      localCloseCoinPosition(sym, price, "Tüm Portföy Nakde Çevrildi");
+      const price = localState.liveTicÇıkışers[sym]?.price || localState.scanner[sym]?.price || localState.positions[sym].current_price;
+      localCloseCoinPosition(sym, price, "Tüm Portföy NaÇıkışde Çevrildi");
     }
     renderDashboard(buildLocalStatusPayload());
   }
@@ -2014,18 +2014,18 @@ function readFormSettings() {
     trade_amount_usdt: parseFloat(document.getElementById("cfgTradeAmount").value),
     timeframe: document.getElementById("cfgTimeframe").value,
     strategy: document.getElementById("cfgStrategy").value,
-    use_partial_tp: document.getElementById("cfgUsePartialTp").checked,
+    use_partial_tp: document.getElementById("cfgUsePartialTp").checÇıkışed,
     partial_tp_pct: parseFloat(document.getElementById("cfgPartialTpPct").value),
-    use_mtf_filter: document.getElementById("cfgUseMtfFilter").checked,
-    use_obi_filter: document.getElementById("cfgUseObiFilter").checked,
-    use_auto_compound: document.getElementById("cfgUseAutoCompound").checked,
-    use_circuit_breaker: document.getElementById("cfgUseCircuitBreaker").checked,
+    use_mtf_filter: document.getElementById("cfgUseMtfFilter").checÇıkışed,
+    use_obi_filter: document.getElementById("cfgUseObiFilter").checÇıkışed,
+    use_auto_compound: document.getElementById("cfgUseAutoCompound").checÇıkışed,
+    use_circuit_breaÇıkışer: document.getElementById("cfgUseCircuitBreaÇıkışer").checÇıkışed,
     daily_tp_limit_pct: parseFloat(document.getElementById("cfgDailyTpPct").value),
     daily_sl_limit_pct: parseFloat(document.getElementById("cfgDailySlPct").value),
-    use_atr_stops: document.getElementById("cfgUseAtrStops").checked,
-    use_volatility_sizing: document.getElementById("cfgUseVolSizing").checked,
-    use_regime_filter: document.getElementById("cfgUseRegimeFilter").checked,
-    use_trailing_stop: document.getElementById("cfgUseTrailing").checked,
+    use_atr_stops: document.getElementById("cfgUseAtrStops").checÇıkışed,
+    use_volatility_sizing: document.getElementById("cfgUseVolSizing").checÇıkışed,
+    use_regime_filter: document.getElementById("cfgUseRegimeFilter").checÇıkışed,
+    use_trailing_stop: document.getElementById("cfgUseTrailing").checÇıkışed,
     atr_sl_mult: parseFloat(document.getElementById("cfgAtrSlMult").value),
     atr_tp_mult: parseFloat(document.getElementById("cfgAtrTpMult").value),
     round_trip_fee_pct: parseFloat(document.getElementById("cfgFeePct").value),
@@ -2040,7 +2040,7 @@ function readFormSettings() {
 async function saveBotSettings(e) {
   if (e) e.preventDefault();
   const payload = readFormSettings();
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/settings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2059,27 +2059,27 @@ async function saveBotSettings(e) {
     }
     addLocalLog(
       "INFO",
-      `Quant v4.0 Ayarları yüklendi: %50 Kademeli TP=${payload.use_partial_tp ? "Açık" : "Kapalı"} (+%${payload.partial_tp_pct}), MTF=${payload.use_mtf_filter ? "Açık" : "Kapalı"}, OBI=${payload.use_obi_filter ? "Açık" : "Kapalı"}, Bileşik Kâr=${payload.use_auto_compound ? "Açık" : "Kapalı"}`
+      `Quant v4.0 Ayarları yüÇıkışlendi: %50 Kademeli TP=${payload.use_partial_tp ? "AçıÇıkış" : "Kapalı"} (+%${payload.partial_tp_pct}), MTF=${payload.use_mtf_filter ? "AçıÇıkış" : "Kapalı"}, OBI=${payload.use_obi_filter ? "AçıÇıkış" : "Kapalı"}, BileşiÇıkış Kâr=${payload.use_auto_compound ? "AçıÇıkış" : "Kapalı"}`
     );
     await runLocalPortfolioScan(true);
   }
 }
 
 async function toggleBot() {
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const statusRes = await fetch(apiUrl("/api/status"));
     const st = await statusRes.json();
     const endpoint = st.running ? "/api/stop" : "/api/start";
     const res = await fetch(apiUrl(endpoint), { method: "POST" });
     renderDashboard(await res.json());
   } else {
-    localState.circuit_breaker_tripped = false;
-    localState.circuit_breaker_reason = "";
+    localState.circuit_breaÇıkışer_tripped = false;
+    localState.circuit_breaÇıkışer_reason = "";
     localState.running = !localState.running;
     if (localState.running) {
       playQuantumSound("LOCK");
       addLocalLog("INFO", `Quant v4.0 Portföy Motoru BAŞLATILDI (${localState.settings.portfolio_coins.length} Coin • %50 Scale-Out + MTF + OBI Balina Radarı)...`);
-      if (Object.keys(localState.positions).length === 0) {
+      if (Object.Çıkışeys(localState.positions).length === 0) {
         await autoBuildPortfolio();
         return;
       }
@@ -2093,13 +2093,13 @@ async function toggleBot() {
 async function resetPaperBalance() {
   scanEpoch++;
   isScanning = false;
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/reset-paper"), { method: "POST" });
     renderDashboard(await res.json());
   } else {
     localState.running = false;
-    localState.circuit_breaker_tripped = false;
-    localState.circuit_breaker_reason = "";
+    localState.circuit_breaÇıkışer_tripped = false;
+    localState.circuit_breaÇıkışer_reason = "";
     localState.positions = {};
     localState.cooldownUntil = {};
     const isTry = localState.settings.quote_asset === "TRY";
@@ -2114,21 +2114,21 @@ async function resetPaperBalance() {
     localStorage.removeItem("argon_btr_trades");
     localStorage.removeItem("argon_btr_fees");
     localStorage.removeItem("argon_btr_portfolio_v36");
-    addLocalLog("INFO", `🔄 Portföy, işlem geçmişi, büyüme eğrisi ve komisyon sayacı tamamen sıfırlandı: ${localState.cash_usdt.toLocaleString("tr-TR")} ${localState.settings.quote_asset} nakit.`);
+    addLocalLog("INFO", `🔄 Portföy, işlem geçmişi, büyüme eğrisi ve Çıkışomisyon sayacı tamamen sıfırlandı: ${localState.cash_usdt.toLocaleString("tr-TR")} ${localState.settings.quote_asset} naÇıkışit.`);
     if (typeof pushStateToHfCloud === "function") pushStateToHfCloud(true);
     renderDashboard(buildLocalStatusPayload());
   }
 }
 
-let hfToken = localStorage.getItem("argon_hf_token") || "";
+let hfToÇıkışen = localStorage.getItem("argon_hf_toÇıkışen") || "";
 let lastHfPushTs = 0;
 const HF_STATE_REPO = "Astreous/argon-quantum-state";
 
 function openCloudModal() {
   const inp = document.getElementById("modalCloudUrl");
   if (inp) inp.value = cloudBaseUrl || "";
-  const hfInp = document.getElementById("modalHfToken");
-  if (hfInp) hfInp.value = hfToken || "";
+  const hfInp = document.getElementById("modalHfToÇıkışen");
+  if (hfInp) hfInp.value = hfToÇıkışen || "";
   document.getElementById("cloudModal").style.display = "flex";
 }
 
@@ -2138,7 +2138,7 @@ function closeCloudModal() {
 
 async function pushStateToHfCloud(force = false) {
   if (TREND_MODE) return false;
-  if (!hfToken) return false;
+  if (!hfToÇıkışen) return false;
   const now = Date.now();
   if (!force && now - lastHfPushTs < 28000) return false;
   lastHfPushTs = now;
@@ -2149,7 +2149,7 @@ async function pushStateToHfCloud(force = false) {
       running: localState.running,
       cash_usdt: localState.cash_usdt,
       total_fees_paid: localState.total_fees_paid,
-      market_regime: localState.market_regime,
+      marÇıkışet_regime: localState.marÇıkışet_regime,
       positions: localState.positions,
       trades: localState.trades.slice(0, 60),
       logs: localState.logs.slice(0, 60),
@@ -2158,20 +2158,20 @@ async function pushStateToHfCloud(force = false) {
     const jsonStr = JSON.stringify(stateObj);
     const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
     const ndjson =
-      JSON.stringify({ key: "header", value: { summary: "Auto-sync Quantum v4.0 portfolio" } }) +
+      JSON.stringify({ Çıkışey: "header", value: { summary: "Auto-sync Quantum v4.0 portfolio" } }) +
       "\n" +
-      JSON.stringify({ key: "file", value: { content: b64, path: "state.json", encoding: "base64" } }) +
+      JSON.stringify({ Çıkışey: "file", value: { content: b64, path: "state.json", encoding: "base64" } }) +
       "\n";
 
     const res = await fetch(`https://huggingface.co/api/datasets/${HF_STATE_REPO}/commit/main`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${hfToken}`,
+        Authorization: `Bearer ${hfToÇıkışen}`,
         "Content-Type": "application/x-ndjson",
       },
       body: ndjson,
     });
-    return res.ok;
+    return res.oÇıkış;
   } catch (_) {
     return false;
   }
@@ -2179,10 +2179,10 @@ async function pushStateToHfCloud(force = false) {
 
 async function pullStateFromHfCloud(manual = false) {
   const statusEl = document.getElementById("cloudSyncStatus");
-  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy çekiliyor...";
+  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy çeÇıkışiliyor...";
   try {
     const res = await fetch(`https://huggingface.co/datasets/${HF_STATE_REPO}/resolve/main/state.json?t=${Date.now()}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.oÇıkış) throw new Error(`HTTP ${res.status}`);
     const st = await res.json();
     if (st && typeof st.cash_usdt === "number") {
       localState.running = Boolean(st.running);
@@ -2203,24 +2203,24 @@ async function pullStateFromHfCloud(manual = false) {
       saveLocalPortfolioState();
       renderDashboard(buildLocalStatusPayload());
       if (manual && statusEl) {
-        statusEl.textContent = `✅ Bulut portföyü yüklendi (${Object.keys(localState.positions).length} açık pozisyon, Son kayıt: ${st.updated_at || "şimdi"}).`;
+        statusEl.textContent = `✅ Bulut portföyü yüÇıkışlendi (${Object.Çıkışeys(localState.positions).length} açıÇıkış pozisyon, Son Çıkışayıt: ${st.updated_at || "şimdi"}).`;
       }
       return true;
     }
   } catch (e) {
-    if (manual && statusEl) statusEl.textContent = `⚠️ Buluttan veri okunamadı: ${e.message}`;
+    if (manual && statusEl) statusEl.textContent = `⚠️ Buluttan veri oÇıkışunamadı: ${e.message}`;
   }
   return false;
 }
 
-async function saveHfTokenAndSync() {
-  const hfInp = document.getElementById("modalHfToken");
+async function saveHfToÇıkışenAndSync() {
+  const hfInp = document.getElementById("modalHfToÇıkışen");
   const rawUrl = (document.getElementById("modalCloudUrl")?.value || "").trim().replace(/\/$/, "");
   const statusEl = document.getElementById("cloudSyncStatus");
 
   if (hfInp && hfInp.value.trim()) {
-    hfToken = hfInp.value.trim();
-    localStorage.setItem("argon_hf_token", hfToken);
+    hfToÇıkışen = hfInp.value.trim();
+    localStorage.setItem("argon_hf_toÇıkışen", hfToÇıkışen);
   }
 
   if (rawUrl && rawUrl.startsWith("http")) {
@@ -2228,14 +2228,14 @@ async function saveHfTokenAndSync() {
     localStorage.setItem("argon_cloud_url", cloudBaseUrl);
   }
 
-  if (statusEl) statusEl.textContent = "⏳ Portföyünüz Hugging Face Bulut Veritabanına kaydediliyor...";
-  const ok = await pushStateToHfCloud(true);
-  if (ok) {
+  if (statusEl) statusEl.textContent = "⏳ Portföyünüz Hugging Face Bulut Veritabanına Çıkışaydediliyor...";
+  const oÇıkış = await pushStateToHfCloud(true);
+  if (oÇıkış) {
     const engineBadge = document.getElementById("engineBadge");
-    if (engineBadge) engineBadge.textContent = "☁️ HF BULUT SENKRON AKTİF";
-    if (statusEl) statusEl.textContent = "✅ Portföyünüz buluta kaydedildi! Telefonunuzdan veya bulut linkinden anında görüntüleyebilirsiniz.";
+    if (engineBadge) engineBadge.textContent = "☁️ HF BULUT SENKÂRON AKTİF";
+    if (statusEl) statusEl.textContent = "✅ Portföyünüz buluta Çıkışaydedildi! Telefonunuzdan veya bulut linÇıkışinden anında görüntüleyebilirsiniz.";
   } else {
-    if (statusEl) statusEl.textContent = "⚠️ Buluta yazmak için geçerli bir Hugging Face Write Token (hf_...) giriniz.";
+    if (statusEl) statusEl.textContent = "⚠️ Buluta yazmaÇıkış için geçerli bir Hugging Face Write ToÇıkışen (hf_...) giriniz.";
   }
 }
 
@@ -2248,33 +2248,33 @@ function closeApiModal() {
 }
 
 async function saveApiKeys() {
-  const api_key = document.getElementById("modalApiKey").value.trim();
+  const api_Çıkışey = document.getElementById("modalApiKey").value.trim();
   const api_secret = document.getElementById("modalApiSecret").value.trim();
-  if (backendAvailable) {
+  if (bacÇıkışendAvailable) {
     const res = await fetch(apiUrl("/api/settings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ api_key, api_secret }),
+      body: JSON.stringify({ api_Çıkışey, api_secret }),
     });
     renderDashboard(await res.json());
   } else {
-    addLocalLog("INFO", "Binance TR API Anahtarları kaydedildi.");
+    addLocalLog("INFO", "Binance TR API Anahtarları Çıkışaydedildi.");
   }
   closeApiModal();
 }
 
 async function initApp() {
-  // URL Search (?hftoken=...) veya Hash (#hftoken=...) üzerinden güvenli tek seferlik HF Token aktarımı
+  // URL Search (?hftoÇıkışen=...) veya Hash (#hftoÇıkışen=...) üzerinden güvenli teÇıkış seferliÇıkış HF ToÇıkışen aÇıkıştarımı
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get("hftoken")) {
-    hfToken = urlParams.get("hftoken").trim();
-    localStorage.setItem("argon_hf_token", hfToken);
+  if (urlParams.get("hftoÇıkışen")) {
+    hfToÇıkışen = urlParams.get("hftoÇıkışen").trim();
+    localStorage.setItem("argon_hf_toÇıkışen", hfToÇıkışen);
     history.replaceState(null, "", window.location.pathname);
-  } else if (window.location.hash && window.location.hash.includes("hftoken=")) {
-    const m = window.location.hash.match(/hftoken=([^&]+)/);
+  } else if (window.location.hash && window.location.hash.includes("hftoÇıkışen=")) {
+    const m = window.location.hash.match(/hftoÇıkışen=([^&]+)/);
     if (m && m[1]) {
-      hfToken = decodeURIComponent(m[1]).trim();
-      localStorage.setItem("argon_hf_token", hfToken);
+      hfToÇıkışen = decodeURIComponent(m[1]).trim();
+      localStorage.setItem("argon_hf_toÇıkışen", hfToÇıkışen);
       history.replaceState(null, "", window.location.pathname + window.location.search);
     }
   }
@@ -2287,42 +2287,42 @@ async function initApp() {
   try {
     if (cloudBaseUrl || window.location.protocol.startsWith("http")) {
       const resp = await fetch(apiUrl("/api/status"));
-      if (resp.ok) {
-        backendAvailable = true;
+      if (resp.oÇıkış) {
+        bacÇıkışendAvailable = true;
         engineBadge.textContent = cloudBaseUrl ? "☁️ 7/24 BULUT MOTORU AKTİF" : "🟢 Quant v4.0 Python Bulut Motoru";
         const data = await resp.json();
         renderDashboard(data);
       }
     }
   } catch (_) {
-    backendAvailable = false;
+    bacÇıkışendAvailable = false;
   }
 
-  if (!backendAvailable) {
-    engineBadge.textContent = hfToken ? "☁️ QUANTUM v4.0 + HF BULUT AKTİF" : "🇹🇷 QUANTUM v4.0 BİNANCE TR (60+ COİN)";
-    addLocalLog("INFO", "Argon Quantum v4.0 Motoru aktif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut Senkronizasyonu devreye alındı.");
-    // Her açılışta buluttaki en güncel portföy ve işlem loglarını otomatik çek
+  if (!bacÇıkışendAvailable) {
+    engineBadge.textContent = hfToÇıkışen ? "☁️ QUANTUM v4.0 + HF BULUT AKTİF" : "🇹🇷 QUANTUM v4.0 BİNANCE TR (60+ COİN)";
+    addLocalLog("INFO", "Argon Quantum v4.0 Motoru aÇıkıştif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut SenÇıkışronizasyonu devreye alındı.");
+    // Her açılışta buluttaÇıkışi en güncel portföy ve işlem loglarını otomatiÇıkış çeÇıkış
     await pullStateFromHfCloud(false);
-    if (localState.running && Object.keys(localState.positions).length === 0 && localState.trades.length === 0) {
+    if (localState.running && Object.Çıkışeys(localState.positions).length === 0 && localState.trades.length === 0) {
       await autoBuildPortfolio();
     } else {
       await runLocalPortfolioScan(true);
     }
-    if (hfToken && !TREND_MODE) {
+    if (hfToÇıkışen && !TREND_MODE) {
       pushStateToHfCloud(true);
     }
   }
 
   pollTimer = setInterval(async () => {
-    if (backendAvailable) {
+    if (bacÇıkışendAvailable) {
       try {
         const res = await fetch(apiUrl("/api/refresh"), { method: "POST" });
-        if (res.ok) renderDashboard(await res.json());
+        if (res.oÇıkış) renderDashboard(await res.json());
       } catch (_) {}
     } else {
       await runLocalPortfolioScan(false);
-      if (TREND_MODE && ++trendPullTick % 10 === 0) await pullStateFromHfCloud(false);
-      if (hfToken && !TREND_MODE) {
+      if (TREND_MODE && ++trendPullTicÇıkış % 10 === 0) await pullStateFromHfCloud(false);
+      if (hfToÇıkışen && !TREND_MODE) {
         pushStateToHfCloud(false);
       }
     }
