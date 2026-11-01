@@ -161,3 +161,12 @@ if __name__ == "__main__":
     print(f" ARGON QUANTUM OS v4.0 7/24 BULUT MOTORU BAŞLATILIYOR (Port: {port})...")
     print("=" * 60)
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+import threading
+import bot_engine
+
+@app.on_event('startup')
+def start_render_daemon():
+    print('Starting 24/7 Render Cloud Daemon Thread...')
+    th = threading.Thread(target=bot_engine.run_loop, daemon=True)
+    th.start()
