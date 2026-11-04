@@ -115,7 +115,7 @@ function playQuantumSound(type = "BUY") {
 function toggleQuantumSound() {
   soundEnabled = !soundEnabled;
   localStorage.setItem("argon_quantum_sound", soundEnabled ? "1" : "0");
-  const btn = document.getEİşlementById("btnSoundToggle");
+  const btn = document.getElementById("btnSoundToggle");
   if (btn) {
     btn.textContent = soundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI";
   }
@@ -130,8 +130,8 @@ const localState = {
   equityHistory: savedPortfolioState?.equityHistory || [
     { time: new Date().toLocaleTimeString("tr-TR"), equity: 10000.0 },
   ],
-  circuit_breaçıker_tripped: false,
-  circuit_breaçıker_reason: "",
+  circuit_breaker_tripped: false,
+  circuit_breaker_reason: "",
   cooldownUntil: {}, // Overtrading önleyici soğuma süresi
   obiCache: {},
   scanner: {},
@@ -164,7 +164,7 @@ const localState = {
     use_mtf_filter: true,
     use_obi_filter: true,
     use_auto_compound: true,
-    use_circuit_breaçıker: true,
+    use_circuit_breaker: true,
     daily_tp_limit_pct: 8.0,
     daily_sl_limit_pct: 4.0,
     use_atr_stops: true,
@@ -189,9 +189,9 @@ function addLocalLog(level, message) {
 }
 
 function onQuoteAssetChange() {
-  const q = document.getEİşlementById("cfgQuoteAsset").value;
-  const lbl = document.getEİşlementById("lblTradeAmount");
-  const inp = document.getEİşlementById("cfgTradeAmount");
+  const q = document.getElementById("cfgQuoteAsset").value;
+  const lbl = document.getElementById("lblTradeAmount");
+  const inp = document.getElementById("cfgTradeAmount");
   if (q === "TRY") {
     lbl.textContent = "Baz Alım Tutarı (TRY ₺)";
     if (Number(inp.value) < 300) inp.value = 1250;
@@ -257,9 +257,9 @@ async function fetchTopBinanceTrCoins(limit = 60, quoteAsset = "TRY") {
 }
 
 async function refreshTopVolumeCoins() {
-  const limit = parseInt(document.getEİşlementById("cfgScanLimit").value, 10) || 60;
-  const quote = document.getEİşlementById("cfgQuoteAsset").value || "TRY";
-  addLocalLog("INFO", `Binance TR üzerinden en yüksek hacimli ${limit} ${quote} paritesi ççekiliyor...`);
+  const limit = parseInt(document.getElementById("cfgScanLimit").value, 10) || 60;
+  const quote = document.getElementById("cfgQuoteAsset").value || "TRY";
+  addLocalLog("INFO", `Binance TR üzerinden en yüksek hacimli ${limit} ${quote} paritesi çekiliyor...`);
   const topList = await fetchTopBinanceTrCoins(limit, quote);
   localState.settings.portfolio_coins = topList;
   localState.settings.scan_limit = limit;
@@ -985,7 +985,7 @@ function checkLocalRiskForSymbol(sym, price) {
 // Quant v4.0: Günlük Kâr/Zarar Sigortası (Circuit Breaçıker)
 function checkLocalCircuitBreaçıker() {
   if (TREND_MODE) return false;
-  if (!localState.settings.use_circuit_breaçıker) return false;
+  if (!localState.settings.use_circuit_breaker) return false;
   const quote = localState.settings.quote_asset || "TRY";
   const initialCap = quote === "TRY" ? 10000.0 : 1000.0;
   const totalEq = getLocalTotalEquity();
@@ -995,24 +995,24 @@ function checkLocalCircuitBreaçıker() {
   const dailySl = Number(localState.settings.daily_sl_limit_pct || 4.0);
 
   if (totalPnlPct >= dailyTp) {
-    localState.circuit_breaçıker_tripped = true;
-    localState.circuit_breaçıker_reason = `🏆 Günlük Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm kâr naçıkde kilitlendi.`;
+    localState.circuit_breaker_tripped = true;
+    localState.circuit_breaker_reason = `🏆 Günlük Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm kâr naçıkde kilitlendi.`;
     for (const s of Object.keys(localState.positions)) {
       const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
       localCloseCoinPosition(s, cp, "Günlük Kâr Sigortası (Circuit Breaçıker TP)");
     }
     localState.running = false;
-    addLocalLog("PROFIT", localState.circuit_breaçıker_reason);
+    addLocalLog("PROFIT", localState.circuit_breaker_reason);
     return true;
   } else if (totalPnlPct <= -dailySl) {
-    localState.circuit_breaçıker_tripped = true;
-    localState.circuit_breaçıker_reason = `🛑 Günlük Maçıksimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye korumaya alındı.`;
+    localState.circuit_breaker_tripped = true;
+    localState.circuit_breaker_reason = `🛑 Günlük Maçıksimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye korumaya alındı.`;
     for (const s of Object.keys(localState.positions)) {
       const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
       localCloseCoinPosition(s, cp, "Günlük Zarar Sigortası (Circuit Breaçıker SL)");
     }
     localState.running = false;
-    addLocalLog("WARN", localState.circuit_breaçıker_reason);
+    addLocalLog("WARN", localState.circuit_breaker_reason);
     return true;
   }
   return false;
@@ -1213,8 +1213,8 @@ function buildLocalStatusPayload() {
     symbol: activeSym,
     quote_asset: cfg.quote_asset || "TRY",
     market_regime: localState.market_regime,
-    circuit_breaçıker_tripped: localState.circuit_breaçıker_tripped,
-    circuit_breaçıker_reason: localState.circuit_breaçıker_reason,
+    circuit_breaker_tripped: localState.circuit_breaker_tripped,
+    circuit_breaker_reason: localState.circuit_breaker_reason,
     total_fees_paid: localState.total_fees_paid,
     price: activeScan.price || 0,
     cash_usdt: localState.cash_usdt,
@@ -1273,7 +1273,7 @@ function renderDashboard(data) {
   const openPosCount = (data.positions || []).length;
 
   // Canlı Kayan Siber Ticker ŞŞeridi
-  const tickerTrack = document.getEİşlementById("liveTickerTrack");
+  const tickerTrack = document.getElementById("liveTickerTrack");
   if (tickerTrack && data.scanner && data.scanner.length > 0) {
     const activeItems = data.scanner.filter((s) => s.price > 0).slice(0, 28);
     if (activeItems.length > 0) {
@@ -1291,13 +1291,13 @@ function renderDashboard(data) {
   }
 
   // Quantum Reaçıktör Animasyonu
-  const reactor = document.getEİşlementById("reactorCore");
+  const reactor = document.getElementById("reactorCore");
   if (reactor) {
     reactor.className = data.running ? "reactor-core reactor-active" : "reactor-core";
   }
 
   // Maçıkâro Piyasa Rejim Rozeti
-  const regBadge = document.getEİşlementById("regimeBadge");
+  const regBadge = document.getElementById("regimeBadge");
   if (regBadge && data.market_regime) {
     regBadge.textContent = data.market_regime.label;
     regBadge.className =
@@ -1308,23 +1308,23 @@ function renderDashboard(data) {
         : "badge badge-info";
   }
 
-  document.getEİşlementById("metricEquity").textContent = `${Number(data.total_equity_usdt || 10000).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getEİşlementById("metricLastUpdate").textContent = data.circuit_breaçıker_tripped
-    ? `🛡️ ${data.circuit_breaçıker_reason}`
+  document.getElementById("metricEquity").textContent = `${Number(data.total_equity_usdt || 10000).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getElementById("metricLastUpdate").textContent = data.circuit_breaker_tripped
+    ? `🛡️ ${data.circuit_breaker_reason}`
     : `Son Quant v4.0 taraması: ${data.last_update} (MTF + OBI + %50 Scale-Out)`;
 
-  document.getEİşlementById("metricCash").textContent = `${Number(data.cash_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getEİşlementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin Açık`;
-  document.getEİşlementById("metricInvested").textContent = `Sepetteki Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getElementById("metricCash").textContent = `${Number(data.cash_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getElementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin Açık`;
+  document.getElementById("metricInvested").textContent = `Sepetteki Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
 
   const totalPnl = Number(data.total_pnl_usdt || 0);
   const uPnl = Number(data.unrealized_pnl || 0);
   const feesPaid = Number(data.total_fees_paid || 0);
-  const pnlEl = document.getEİşlementById("metricTotalPnl");
+  const pnlEl = document.getElementById("metricTotalPnl");
   pnlEl.textContent = `${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)} ${quote}`;
   pnlEl.className = totalPnl >= 0 ? "pnl-pos" : "pnl-neg";
-  document.getEİşlementById("metricWinRate").textContent = `Başarı: %${data.win_rate}`;
-  document.getEİşlementById("metricUnrealized").textContent = `Açık Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
+  document.getElementById("metricWinRate").textContent = `Başarı: %${data.win_rate}`;
+  document.getElementById("metricUnrealized").textContent = `Açık Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
 
   const allScanner = data.scanner || [];
   const scannedReady = allScanner.filter((x) => x.price > 0 && x.indicators?.rsi !== undefined);
@@ -1333,25 +1333,35 @@ function renderDashboard(data) {
   const sortedScan = [...scannedReady].sort((a, b) => (b.score || 0) - (a.score || 0));
   if (sortedScan.length > 0) {
     const leader = sortedScan[0];
-    const topEl = document.getEİşlementById("metricTopCoin");
+    const topEl = document.getElementById("metricTopCoin");
     topEl.textContent = `${leader.symbol} (${leader.signal === "BUY" ? "ONAYLI AL" : "LİDER"})`;
     topEl.className = leader.score >= 66 ? "signal-buy" : leader.score <= 35 ? "signal-sell" : "signal-hold";
-    document.getEİşlementById("metricTopScore").textContent = `Quant: ${leader.score}/100`;
-    document.getEİşlementById("metricTopReason").textContent = `${scannedReady.length}/${allScanner.length} Coin Analiz Edildi • ${buySignalsCount} Onaylı AL Fırsatı`;
+    document.getElementById("metricTopScore").textContent = `Quant: ${leader.score}/100`;
+    document.getElementById("metricTopReason").textContent = `${scannedReady.length}/${allScanner.length} Coin Analiz Edildi • ${buySignalsCount} Onaylı AL Fırsatı`;
+  } else {
+    const topEl = document.getElementById("metricTopCoin");
+    if (topEl && data.market_regime) {
+      topEl.textContent = data.market_regime.btc_trend || "BTC 1H BOĞA (RADAR AKTİF)";
+      topEl.className = data.market_regime.state === "BULL" ? "signal-buy" : "signal-hold";
+      const scEl = document.getElementById("metricTopScore");
+      if (scEl) scEl.textContent = `BTC RSI: ${data.market_regime.btc_rsi || 50}`;
+      const reEl = document.getElementById("metricTopReason");
+      if (reEl) reEl.textContent = data.market_regime.label || "350+ Binance TR paritesi taranıyor • Kasa %100 Nakitte Pusuda";
+    }
   }
 
-  document.getEİşlementById("scannerTitle").textContent = `📡 QUANTUM v4.0 MULTI-COIN RADAR (${allScanner.length} PARİTE)`;
-  document.getEİşlementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.market_regime?.state || "NEUTRAL"}`;
+  document.getElementById("scannerTitle").textContent = `📡 QUANTUM v4.0 MULTI-COIN RADAR (${allScanner.length} PARİTE)`;
+  document.getElementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.market_regime?.state || "NEUTRAL"}`;
 
-  const stateBadge = document.getEİşlementById("botStateBadge");
-  const btnStartStop = document.getEİşlementById("btnStartStop");
+  const stateBadge = document.getElementById("botStateBadge");
+  const btnStartStop = document.getElementById("btnStartStop");
   if (data.running) {
     stateBadge.textContent = "⚡ QUANTUM v4.0 ENGAGED";
     stateBadge.className = "badge badge-running";
     btnStartStop.textContent = "⏸ QUANTUM DURDUR";
     btnStartStop.className = "btn btn-sell btn-cyber";
   } else {
-    stateBadge.textContent = data.circuit_breaçıker_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
+    stateBadge.textContent = data.circuit_breaker_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
     stateBadge.className = "badge badge-stopped";
     btnStartStop.textContent = "▶ QUANTUM BAŞLAT";
     btnStartStop.className = "btn btn-primary btn-cyber";
@@ -1360,7 +1370,7 @@ function renderDashboard(data) {
   renderAllocationBar(data.positions || [], Number(data.cash_usdt || 0), Number(data.total_equity_usdt || 10000), quote);
 
   // AÇIK POZİSYONLAR TABLOSU
-  const posBody = document.getEİşlementById("openPositionsTableBody");
+  const posBody = document.getElementById("openPositionsTableBody");
   if (data.positions && data.positions.length > 0) {
     posBody.innerHTML = data.positions
       .map((p) => {
@@ -1409,8 +1419,8 @@ function renderDashboard(data) {
   }
 
   // ÇOKLU-COİN QUANT TARAYICI TABLOSU
-  const searchQuery = (document.getEİşlementById("coinSearchInput")?.value || "").trim().toUpperCase();
-  const filterMode = document.getEİşlementById("scannerFilterSelect")?.value || "ALL";
+  const searchQuery = (document.getElementById("coinSearchInput")?.value || "").trim().toUpperCase();
+  const filterMode = document.getElementById("scannerFilterSelect")?.value || "ALL";
 
   let filteredScanner = [...allScanner];
   if (searchQuery) {
@@ -1430,7 +1440,7 @@ function renderDashboard(data) {
 
   filteredScanner.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  const scanBody = document.getEİşlementById("scannerTableBody");
+  const scanBody = document.getElementById("scannerTableBody");
   if (filteredScanner.length > 0) {
     scanBody.innerHTML = filteredScanner
       .map((item) => {
@@ -1478,12 +1488,12 @@ function renderDashboard(data) {
     scanBody.innerHTML = `<tr><td colspan="9" class="text-center">Filtreye uygun coin bulunamadı.</td></tr>`;
   }
 
-  document.getEİşlementById("chartTitle").textContent = `📈 ${data.symbol} (${data.settings.timeframe}) HOLOGRAFİK MUM & MTF MATRİSİ`;
+  document.getElementById("chartTitle").textContent = `📈 ${data.symbol} (${data.settings.timeframe}) HOLOGRAFİK MUM & MTF MATRİSİ`;
   const activePos = (data.positions || []).find((p) => p.symbol === data.symbol) || null;
   drawCandlestickChart(data.candles || [], data.series || {}, activePos);
   drawEquityCurveChart(data.equity_history || localState.equityHistory || [], Number(data.total_equity_usdt || 10000), quote);
 
-  const tbody = document.getEİşlementById("tradesTableBody");
+  const tbody = document.getElementById("tradesTableBody");
   if (data.trades && data.trades.length > 0) {
     tbody.innerHTML = data.trades
       .slice(0, 30)
@@ -1506,7 +1516,7 @@ function renderDashboard(data) {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center">Henüz tamamlanmış işİşlem yok.</td></tr>`;
   }
 
-  const logsEl = document.getEİşlementById("logsContainer");
+  const logsEl = document.getElementById("logsContainer");
   if (data.logs && data.logs.length > 0) {
     logsEl.innerHTML = data.logs
       .slice(0, 50)
@@ -1516,8 +1526,8 @@ function renderDashboard(data) {
 }
 
 function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
-  const bar = document.getEİşlementById("allocationBar");
-  const legend = document.getEİşlementById("allocationLegend");
+  const bar = document.getElementById("allocationBar");
+  const legend = document.getElementById("allocationLegend");
   if (!bar || !legend || totalEquity <= 0) return;
 
   const segments = [];
@@ -1559,7 +1569,7 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
 }
 
 function drawCandlestickChart(candles, series, position) {
-  const canvas = document.getEİşlementById("priceChart");
+  const canvas = document.getElementById("priceChart");
   if (!canvas || candles.length < 5) return;
   const ctx = canvas.getContext("2d");
   const W = canvas.width;
@@ -1681,7 +1691,7 @@ function drawCandlestickChart(candles, series, position) {
 
 // Quant v4.0: Holografik Canlı Portföy Büyüme Eğrisi (Kâr Bölümleri Yeşil / Zarar Bölümleri Kırmızı)
 function drawEquityCurveChart(history, currentEquity, quote) {
-  const canvas = document.getEİşlementById("equityChart");
+  const canvas = document.getElementById("equityChart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const W = canvas.width;
@@ -1701,12 +1711,12 @@ function drawEquityCurveChart(history, currentEquity, quote) {
 
   const peaçıkEquity = Math.max(initialCap, currentEquity, ...pts.map((p) => Number(p.equity || initialCap)));
 
-  const peaçıkBadge = document.getEİşlementById("equityPeaçıkBadge");
+  const peaçıkBadge = document.getElementById("equityPeaçıkBadge");
   if (peaçıkBadge) {
     peaçıkBadge.textContent = `ZİRVE: ${peaçıkEquity.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
   }
 
-  const growthBadge = document.getEİşlementById("equityGrowthBadge");
+  const growthBadge = document.getElementById("equityGrowthBadge");
   if (growthBadge) {
     growthBadge.textContent = `${growthPct >= 0 ? "+" : ""}%${growthPct.toFixed(2)} (${currentEquity >= initialCap ? "+" : ""}${(currentEquity - initialCap).toFixed(2)} ${quote})`;
     growthBadge.className = growthPct >= 0 ? "pill pill-live" : "pill pill-loss";
@@ -2015,33 +2025,33 @@ async function closeAllPositions() {
 
 function readFormSettings() {
   return {
-    mode: document.getEİşlementById("cfgMode").value,
-    quote_asset: document.getEİşlementById("cfgQuoteAsset").value,
-    scan_limit: parseInt(document.getEİşlementById("cfgScanLimit").value, 10),
-    max_open_positions: parseInt(document.getEİşlementById("cfgMaxPositions").value, 10),
-    trade_amount_usdt: parseFloat(document.getEİşlementById("cfgTradeAmount").value),
-    timeframe: document.getEİşlementById("cfgTimeframe").value,
-    strategy: document.getEİşlementById("cfgStrategy").value,
-    use_partial_tp: document.getEİşlementById("cfgUsePartialTp").checked,
-    partial_tp_pct: parseFloat(document.getEİşlementById("cfgPartialTpPct").value),
-    use_mtf_filter: document.getEİşlementById("cfgUseMtfFilter").checked,
-    use_obi_filter: document.getEİşlementById("cfgUseObiFilter").checked,
-    use_auto_compound: document.getEİşlementById("cfgUseAutoCompound").checked,
-    use_circuit_breaçıker: document.getEİşlementById("cfgUseCircuitBreaçıker").checked,
-    daily_tp_limit_pct: parseFloat(document.getEİşlementById("cfgDailyTpPct").value),
-    daily_sl_limit_pct: parseFloat(document.getEİşlementById("cfgDailySlPct").value),
-    use_atr_stops: document.getEİşlementById("cfgUseAtrStops").checked,
-    use_volatility_sizing: document.getEİşlementById("cfgUseVolSizing").checked,
-    use_regime_filter: document.getEİşlementById("cfgUseRegimeFilter").checked,
-    use_trailing_stop: document.getEİşlementById("cfgUseTrailing").checked,
-    atr_sl_mult: parseFloat(document.getEİşlementById("cfgAtrSlMult").value),
-    atr_tp_mult: parseFloat(document.getEİşlementById("cfgAtrTpMult").value),
-    round_trip_fee_pct: parseFloat(document.getEİşlementById("cfgFeePct").value),
-    rsi_period: parseInt(document.getEİşlementById("cfgRsiPeriod").value, 10),
-    rsi_oversold: parseFloat(document.getEİşlementById("cfgRsiOversold").value),
-    rsi_overbought: parseFloat(document.getEİşlementById("cfgRsiOverbought").value),
-    ema_fast: parseInt(document.getEİşlementById("cfgEmaFast").value, 10),
-    ema_slow: parseInt(document.getEİşlementById("cfgEmaSlow").value, 10),
+    mode: document.getElementById("cfgMode").value,
+    quote_asset: document.getElementById("cfgQuoteAsset").value,
+    scan_limit: parseInt(document.getElementById("cfgScanLimit").value, 10),
+    max_open_positions: parseInt(document.getElementById("cfgMaxPositions").value, 10),
+    trade_amount_usdt: parseFloat(document.getElementById("cfgTradeAmount").value),
+    timeframe: document.getElementById("cfgTimeframe").value,
+    strategy: document.getElementById("cfgStrategy").value,
+    use_partial_tp: document.getElementById("cfgUsePartialTp").checked,
+    partial_tp_pct: parseFloat(document.getElementById("cfgPartialTpPct").value),
+    use_mtf_filter: document.getElementById("cfgUseMtfFilter").checked,
+    use_obi_filter: document.getElementById("cfgUseObiFilter").checked,
+    use_auto_compound: document.getElementById("cfgUseAutoCompound").checked,
+    use_circuit_breaker: document.getElementById("cfgUseCircuitBreaçıker").checked,
+    daily_tp_limit_pct: parseFloat(document.getElementById("cfgDailyTpPct").value),
+    daily_sl_limit_pct: parseFloat(document.getElementById("cfgDailySlPct").value),
+    use_atr_stops: document.getElementById("cfgUseAtrStops").checked,
+    use_volatility_sizing: document.getElementById("cfgUseVolSizing").checked,
+    use_regime_filter: document.getElementById("cfgUseRegimeFilter").checked,
+    use_trailing_stop: document.getElementById("cfgUseTrailing").checked,
+    atr_sl_mult: parseFloat(document.getElementById("cfgAtrSlMult").value),
+    atr_tp_mult: parseFloat(document.getElementById("cfgAtrTpMult").value),
+    round_trip_fee_pct: parseFloat(document.getElementById("cfgFeePct").value),
+    rsi_period: parseInt(document.getElementById("cfgRsiPeriod").value, 10),
+    rsi_oversold: parseFloat(document.getElementById("cfgRsiOversold").value),
+    rsi_overbought: parseFloat(document.getElementById("cfgRsiOverbought").value),
+    ema_fast: parseInt(document.getElementById("cfgEmaFast").value, 10),
+    ema_slow: parseInt(document.getElementById("cfgEmaSlow").value, 10),
   };
 }
 
@@ -2081,8 +2091,8 @@ async function toggleBot() {
     const res = await fetch(apiUrl(endpoint), { method: "POST" });
     renderDashboard(await res.json());
   } else {
-    localState.circuit_breaçıker_tripped = false;
-    localState.circuit_breaçıker_reason = "";
+    localState.circuit_breaker_tripped = false;
+    localState.circuit_breaker_reason = "";
     localState.running = !localState.running;
     if (localState.running) {
       playQuantumSound("LOCK");
@@ -2106,8 +2116,8 @@ async function resetPaperBalance() {
     renderDashboard(await res.json());
   } else {
     localState.running = false;
-    localState.circuit_breaçıker_tripped = false;
-    localState.circuit_breaçıker_reason = "";
+    localState.circuit_breaker_tripped = false;
+    localState.circuit_breaker_reason = "";
     localState.positions = {};
     localState.cooldownUntil = {};
     const isTry = localState.settings.quote_asset === "TRY";
@@ -2133,15 +2143,15 @@ let lastHfPushTs = 0;
 const HF_STATE_REPO = "Astreous/argon-quantum-state";
 
 function openCloudModal() {
-  const inp = document.getEİşlementById("modalCloudUrl");
+  const inp = document.getElementById("modalCloudUrl");
   if (inp) inp.value = cloudBaseUrl || "";
-  const hfInp = document.getEİşlementById("modalHfToken");
+  const hfInp = document.getElementById("modalHfToken");
   if (hfInp) hfInp.value = hfToken || "";
-  document.getEİşlementById("cloudModal").style.display = "flex";
+  document.getElementById("cloudModal").style.display = "flex";
 }
 
 function closeCloudModal() {
-  document.getEİşlementById("cloudModal").style.display = "none";
+  document.getElementById("cloudModal").style.display = "none";
 }
 
 async function pushStateToHfCloud(force = false) {
@@ -2186,10 +2196,10 @@ async function pushStateToHfCloud(force = false) {
 }
 
 async function pullStateFromHfCloud(manual = false) {
-  const statusEl = document.getEİşlementById("cloudSyncStatus");
-  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy ççekiliyor...";
+  const statusEl = document.getElementById("cloudSyncStatus");
+  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy çekiliyor...";
   try {
-    const res = await fetch(`https://huggingface.co/datasets/${HF_STATE_REPO}/resolve/main/state.json?t=${Date.now()}`);
+    const res = await fetch(`https://huggingface.co/datasets/${HF_STATE_REPO}/raw/main/state.json?t=${Date.now()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const st = await res.json();
     if (st && typeof st.cash_usdt === "number") {
@@ -2225,9 +2235,9 @@ async function pullStateFromHfCloud(manual = false) {
 }
 
 async function saveHfTokenAndSync() {
-  const hfInp = document.getEİşlementById("modalHfToken");
-  const rawUrl = (document.getEİşlementById("modalCloudUrl")?.value || "").trim().replace(/\/$/, "");
-  const statusEl = document.getEİşlementById("cloudSyncStatus");
+  const hfInp = document.getElementById("modalHfToken");
+  const rawUrl = (document.getElementById("modalCloudUrl")?.value || "").trim().replace(/\/$/, "");
+  const statusEl = document.getElementById("cloudSyncStatus");
 
   if (hfInp && hfInp.value.trim()) {
     hfToken = hfInp.value.trim();
@@ -2242,7 +2252,7 @@ async function saveHfTokenAndSync() {
   if (statusEl) statusEl.textContent = "⏳ Portföyünüz Hugging Face Bulut Veritabanına kaydediliyor...";
   const ok = await pushStateToHfCloud(true);
   if (ok) {
-    const engineBadge = document.getEİşlementById("engineBadge");
+    const engineBadge = document.getElementById("engineBadge");
     if (engineBadge) engineBadge.textContent = "☁️ HF BULUT SENKRON AKTİF";
     if (statusEl) statusEl.textContent = "✅ Portföyünüz buluta kaydedildi! Telefonunuzdan veya bulut linkinden anında görüntüleyebilirsiniz.";
   } else {
@@ -2251,16 +2261,16 @@ async function saveHfTokenAndSync() {
 }
 
 function openApiModal() {
-  document.getEİşlementById("apiModal").style.display = "flex";
+  document.getElementById("apiModal").style.display = "flex";
 }
 
 function closeApiModal() {
-  document.getEİşlementById("apiModal").style.display = "none";
+  document.getElementById("apiModal").style.display = "none";
 }
 
 async function saveApiKeys() {
-  const api_key = document.getEİşlementById("modalApiKey").value.trim();
-  const api_secret = document.getEİşlementById("modalApiSecret").value.trim();
+  const api_key = document.getElementById("modalApiKey").value.trim();
+  const api_secret = document.getElementById("modalApiSecret").value.trim();
   if (backendAvailable) {
     const res = await fetch(apiUrl("/api/settings"), {
       method: "POST",
@@ -2290,13 +2300,13 @@ async function initApp() {
     }
   }
 
-  const soundBtn = document.getEİşlementById("btnSoundToggle");
+  const soundBtn = document.getElementById("btnSoundToggle");
   if (soundBtn) {
     soundBtn.textContent = soundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI";
   }
-  const engineBadge = document.getEİşlementById("engineBadge");
+  const engineBadge = document.getElementById("engineBadge");
   try {
-    if (cloudBaseUrl || window.location.protocol.startsWith("http")) {
+    if (cloudBaseUrl) {
       const resp = await fetch(apiUrl("/api/status"));
       if (resp.ok) {
         backendAvailable = true;
@@ -2311,8 +2321,8 @@ async function initApp() {
 
   if (!backendAvailable) {
     engineBadge.textContent = hfToken ? "☁️ QUANTUM v4.0 + HF BULUT AKTİF" : "🇹🇷 QUANTUM v4.0 BİNANCE TR (60+ COİN)";
-    addLocalLog("INFO", "Argon Quantum v4.0 Motoru açıktif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut Senkâronizasyonu devreye alındı.");
-    // Her açılışta buluttaçıki en güncel portföy ve işİşlem loglarını otomatik çek
+    addLocalLog("INFO", "Argon Quantum v4.0 Motoru aktif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut Senkronizasyonu devreye alındı.");
+    // Her açılışta buluttaki en güncel portföy ve işİşlem loglarını otomatik çek
     await pullStateFromHfCloud(false);
     if (localState.running && Object.keys(localState.positions).length === 0 && localState.trades.length === 0) {
       await autoBuildPortfolio();
