@@ -1,7 +1,7 @@
 // Argon Quant v4.0 | Kurumsal Çoklu-Coin Algoritmik Portföy & 7/24 Bulut Motoru
 let backendAvailable = false;
 // ARGON Quant v4.0: Hızlı Scalp & 4 Kademeli Kâr Koruması (%25 / %50 / %75 / %100)
-const TREND_MODE = false;
+const TREND_MODE = true;
 let trendPullTick = 0;
 let cloudBaseUrl = localStorage.getItem("argon_cloud_url") || "";
 let pollTimer = null;
@@ -147,12 +147,12 @@ const localState = {
     symbol: "BTC/TRY",
     scan_limit: 60,
     portfolio_coins: [...BINANCE_TR_60_COINS],
-    max_open_positions: 8,
-    timeframe: "15m",
+    max_open_positions: 4,
+    timeframe: "1h",
     strategy: "multi",
-    trade_amount_usdt: 1250,
+    trade_amount_usdt: 2500,
     use_partial_tp: true,
-    partial_tp_pct: 1.8,
+    partial_tp_pct: 4.0,
     use_mtf_filter: true,
     use_obi_filter: true,
     use_auto_compound: true,
@@ -2199,6 +2199,9 @@ async function pullStateFromHfCloud(manual = false) {
       if (Array.isArray(st.logs) && st.logs.length > 0) {
         localState.logs = st.logs;
       }
+      if (st.market_regime) {
+        localState.market_regime = st.market_regime;
+      }
       localStorage.setItem("argon_btr_fees", String(localState.total_fees_paid.toFixed(2)));
       saveLocalPortfolioState();
       renderDashboard(buildLocalStatusPayload());
@@ -2321,7 +2324,7 @@ async function initApp() {
       } catch (_) {}
     } else {
       await runLocalPortfolioScan(false);
-      if (TREND_MODE && ++trendPullTick % 10 === 0) await pullStateFromHfCloud(false);
+      if (TREND_MODE) await pullStateFromHfCloud(false);
       if (hfToken && !TREND_MODE) {
         pushStateToHfCloud(false);
       }
