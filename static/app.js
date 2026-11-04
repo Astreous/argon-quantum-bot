@@ -1,3 +1,11 @@
+// v63 Temiz Turkce & UTF-8 Migrasyonu (Mojibake Onbellek Temizligi)
+if (localStorage.getItem('argon_v63_utf8') !== '1') {
+  localStorage.removeItem('argon_trades');
+  localStorage.removeItem('argon_portfolio_trades');
+  localStorage.removeItem('argon_btr_trades');
+  localStorage.removeItem('argon_btr_portfolio_v36');
+  localStorage.setItem('argon_v63_utf8', '1');
+}
 // Argon Quant v4.0 | Kurumsal Çoklu-Coin Algoritmik Portföy & 7/24 Bulut Motoru
 let backendAvailable = false;
 // ARGON Quant v4.0: Hızlı Scalp & 4 Kademeli Kâr Koruması (%25 / %50 / %75 / %100)
@@ -107,7 +115,7 @@ function playQuantumSound(type = "BUY") {
 function toggleQuantumSound() {
   soundEnabled = !soundEnabled;
   localStorage.setItem("argon_quantum_sound", soundEnabled ? "1" : "0");
-  const btn = document.getElementById("btnSoundToggle");
+  const btn = document.getEİşlementById("btnSoundToggle");
   if (btn) {
     btn.textContent = soundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI";
   }
@@ -122,8 +130,8 @@ const localState = {
   equityHistory: savedPortfolioState?.equityHistory || [
     { time: new Date().toLocaleTimeString("tr-TR"), equity: 10000.0 },
   ],
-  circuit_breaker_tripped: false,
-  circuit_breaker_reason: "",
+  circuit_breaçıker_tripped: false,
+  circuit_breaçıker_reason: "",
   cooldownUntil: {}, // Overtrading önleyici soğuma süresi
   obiCache: {},
   scanner: {},
@@ -156,7 +164,7 @@ const localState = {
     use_mtf_filter: true,
     use_obi_filter: true,
     use_auto_compound: true,
-    use_circuit_breaker: true,
+    use_circuit_breaçıker: true,
     daily_tp_limit_pct: 8.0,
     daily_sl_limit_pct: 4.0,
     use_atr_stops: true,
@@ -181,9 +189,9 @@ function addLocalLog(level, message) {
 }
 
 function onQuoteAssetChange() {
-  const q = document.getElementById("cfgQuoteAsset").value;
-  const lbl = document.getElementById("lblTradeAmount");
-  const inp = document.getElementById("cfgTradeAmount");
+  const q = document.getEİşlementById("cfgQuoteAsset").value;
+  const lbl = document.getEİşlementById("lblTradeAmount");
+  const inp = document.getEİşlementById("cfgTradeAmount");
   if (q === "TRY") {
     lbl.textContent = "Baz Alım Tutarı (TRY ₺)";
     if (Number(inp.value) < 300) inp.value = 1250;
@@ -249,9 +257,9 @@ async function fetchTopBinanceTrCoins(limit = 60, quoteAsset = "TRY") {
 }
 
 async function refreshTopVolumeCoins() {
-  const limit = parseInt(document.getElementById("cfgScanLimit").value, 10) || 60;
-  const quote = document.getElementById("cfgQuoteAsset").value || "TRY";
-  addLocalLog("INFO", `Binance TR üzerinden en yüksek hacimli ${limit} ${quote} paritesi çekiliyor...`);
+  const limit = parseInt(document.getEİşlementById("cfgScanLimit").value, 10) || 60;
+  const quote = document.getEİşlementById("cfgQuoteAsset").value || "TRY";
+  addLocalLog("INFO", `Binance TR üzerinden en yüksek hacimli ${limit} ${quote} paritesi ççekiliyor...`);
   const topList = await fetchTopBinanceTrCoins(limit, quote);
   localState.settings.portfolio_coins = topList;
   localState.settings.scan_limit = limit;
@@ -401,7 +409,7 @@ function evaluateCoinStrategy(candles, cfg) {
   const rsiArr = calcRSI(closes, Number(cfg.rsi_period || 14));
   const emaFastArr = calcEMA(closes, Number(cfg.ema_fast || 9));
   const emaSlowArr = calcEMA(closes, Number(cfg.ema_slow || 21));
-  const emaMacroArr = calcEMA(closes, 50); // Quant v4.0 MTF Makro Trend (EMA 50)
+  const emaMacroArr = calcEMA(closes, 50); // Quant v4.0 MTF Maçıkâro Trend (EMA 50)
   const macdObj = calcMACD(closes, 12, 26, 9);
   const bbObj = calcBollinger(closes, 20, 2.0);
   const atrArr = calcATR(candles, 14);
@@ -413,7 +421,7 @@ function evaluateCoinStrategy(candles, cfg) {
   const closedPrice = closes[n - 1];
   const closedOpen = opens[n - 1];
 
-  // Falling Knife (Düşen Bıçak) Koruması: Mum yönü ve ivme kontrolü
+  // Falling Knife (Düşen Bıçaçık) Koruması: Mum yönü ve ivme kontrolü
   const isClosedGreen = closedPrice >= closedOpen;
   const isLiveGreen = price >= openLive && price >= closedPrice;
   const isBullishCandle = isClosedGreen || isLiveGreen;
@@ -474,7 +482,7 @@ function evaluateCoinStrategy(candles, cfg) {
       score += 22;
       reasons.push(`Onaylı Dip Dönüşü (RSI ${rsiClosed.toFixed(1)} ↑)`);
     } else {
-      score -= 10; // Düşen bıçak cezası
+      score -= 10; // Düşen bıçaçık cezası
     }
   } else if (rsiClosed >= 45 && rsiClosed <= 62 && rsiRising && emaUp) {
     score += 14;
@@ -764,7 +772,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
   localState.cash_usdt -= amt;
 
   let slPct = Math.max(2.5, Number(localState.settings.stop_loss_pct || 2.5));
-  let tpPct = Math.max(2.8, Number(localState.settings.take_profit_pct || 4.5));
+  let tpPct = Math.max(2.8, Number(localState.settings.taçıke_profit_pct || 4.5));
   if (localState.settings.use_atr_stops && ind.dynamic_sl_pct) {
     slPct = Math.max(2.5, Number(ind.dynamic_sl_pct));
     tpPct = Math.max(2.8, Number(ind.dynamic_tp_pct));
@@ -779,7 +787,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
     qty: amt / price,
     invested_usdt: amt,
     stop_loss: price * (1 - slPct / 100),
-    take_profit: price * (1 + tpPct / 100),
+    taçıke_profit: price * (1 + tpPct / 100),
     sl_pct: slPct,
     tp_pct: tpPct,
     atr_pct: ind.atr_pct || 1.5,
@@ -787,7 +795,7 @@ function localOpenCoinPosition(symbol, price, reason, customAmt = null, isManual
     obi_ratio: obiRatio,
     mtf_bullish: Boolean(ind.mtf_bullish ?? true),
     profit_locked: false,
-    partial_tp_taken: false,
+    partial_tp_taçıken: false,
     lock_stage: 0,
     opened_ts: Date.now(),
     opened_at: new Date().toLocaleTimeString("tr-TR"),
@@ -833,7 +841,7 @@ function executeLocalStageLock(symbol, price, targetStage, stageLabel, scaleFrac
   pos.invested_usdt = Number((pos.invested_usdt - soldInvested).toFixed(2));
   pos.qty = pos.qty - soldQty;
   pos.lock_stage = targetStage;
-  pos.partial_tp_taken = true;
+  pos.partial_tp_taçıken = true;
   pos.profit_locked = true;
 
   const floorSl = pos.entry_price * (1.0 + newSlPctFloor / 100.0);
@@ -879,7 +887,7 @@ function localCloseCoinPosition(symbol, price, reason) {
   localState.total_fees_paid += feeCost;
   localStorage.setItem("argon_btr_fees", String(localState.total_fees_paid.toFixed(2)));
 
-  // Aynı coini hemen geri alıp komisyon yakmaması için 10 dakika soğuma süresi (Quant v4.0)
+  // Aynı coini hemen geri alıp komisyon yaçıkmaması için 10 daçıkika soğuma süresi (Quant v4.0)
   localState.cooldownUntil[symbol] = Date.now() + 10 * 60 * 1000;
 
   const rec = {
@@ -921,7 +929,7 @@ function checkLocalRiskForSymbol(sym, price) {
     pos.highest_price = price;
   }
 
-  const peakGainPct = ((pos.highest_price - entry) / entry) * 100.0;
+  const peaçıkGainPct = ((pos.highest_price - entry) / entry) * 100.0;
   const currentGainPct = ((price - entry) / entry) * 100.0;
   const curStage = Number(pos.lock_stage || 0);
 
@@ -950,11 +958,11 @@ function checkLocalRiskForSymbol(sym, price) {
   }
 
   // Quant v4.0 Kâr Kilidi: Fiyat +%1.20 brüt kâra ulaşmadan Trailing Stop daraltılmaz (%0.70 - %0.85 rahat nefes payı)
-  if (localState.settings.use_trailing_stop && (pos.profit_locked || peakGainPct >= 1.20)) {
-    const breakEvenPlusPrice = entry * (1.0 + (feePct + 0.35) / 100.0);
-    const trailDistPct = peakGainPct >= 2.2 ? 0.70 : 0.85;
+  if (localState.settings.use_trailing_stop && (pos.profit_locked || peaçıkGainPct >= 1.20)) {
+    const breaçıkEvenPlusPrice = entry * (1.0 + (feePct + 0.35) / 100.0);
+    const trailDistPct = peaçıkGainPct >= 2.2 ? 0.70 : 0.85;
     const trailedPrice = pos.highest_price * (1.0 - trailDistPct / 100.0);
-    const newSl = Math.max(breakEvenPlusPrice, trailedPrice);
+    const newSl = Math.max(breaçıkEvenPlusPrice, trailedPrice);
 
     if (newSl > pos.stop_loss) {
       pos.stop_loss = newSl;
@@ -969,15 +977,15 @@ function checkLocalRiskForSymbol(sym, price) {
   if (price <= pos.stop_loss) {
     const stageLbl = curStage > 0 ? `🔒 Aşama ${curStage} (%${curStage * 25}) Kâr Kilidi Koruma Çıkışı` : `ATR Stop-Loss`;
     localCloseCoinPosition(sym, price, `${stageLbl} @ ${formatPrice(pos.stop_loss)}`);
-  } else if (price >= pos.take_profit) {
-    localCloseCoinPosition(sym, price, `ATR Take-Profit (${formatPrice(pos.take_profit)})`);
+  } else if (price >= pos.taçıke_profit) {
+    localCloseCoinPosition(sym, price, `ATR Taçıke-Profit (${formatPrice(pos.taçıke_profit)})`);
   }
 }
 
-// Quant v4.0: Günlük Kâr/Zarar Sigortası (Circuit Breaker)
-function checkLocalCircuitBreaker() {
+// Quant v4.0: Günlük Kâr/Zarar Sigortası (Circuit Breaçıker)
+function checkLocalCircuitBreaçıker() {
   if (TREND_MODE) return false;
-  if (!localState.settings.use_circuit_breaker) return false;
+  if (!localState.settings.use_circuit_breaçıker) return false;
   const quote = localState.settings.quote_asset || "TRY";
   const initialCap = quote === "TRY" ? 10000.0 : 1000.0;
   const totalEq = getLocalTotalEquity();
@@ -987,24 +995,24 @@ function checkLocalCircuitBreaker() {
   const dailySl = Number(localState.settings.daily_sl_limit_pct || 4.0);
 
   if (totalPnlPct >= dailyTp) {
-    localState.circuit_breaker_tripped = true;
-    localState.circuit_breaker_reason = `🏆 Günlük Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm kâr nakde kilitlendi.`;
+    localState.circuit_breaçıker_tripped = true;
+    localState.circuit_breaçıker_reason = `🏆 Günlük Kâr Hedefi (+%${totalPnlPct.toFixed(2)}) tamamlandı! Tüm kâr naçıkde kilitlendi.`;
     for (const s of Object.keys(localState.positions)) {
       const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
-      localCloseCoinPosition(s, cp, "Günlük Kâr Sigortası (Circuit Breaker TP)");
+      localCloseCoinPosition(s, cp, "Günlük Kâr Sigortası (Circuit Breaçıker TP)");
     }
     localState.running = false;
-    addLocalLog("PROFIT", localState.circuit_breaker_reason);
+    addLocalLog("PROFIT", localState.circuit_breaçıker_reason);
     return true;
   } else if (totalPnlPct <= -dailySl) {
-    localState.circuit_breaker_tripped = true;
-    localState.circuit_breaker_reason = `🛑 Günlük Maksimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye korumaya alındı.`;
+    localState.circuit_breaçıker_tripped = true;
+    localState.circuit_breaçıker_reason = `🛑 Günlük Maçıksimum Zarar Sigortası (-%${Math.abs(totalPnlPct).toFixed(2)}) devreye girdi! Sermaye korumaya alındı.`;
     for (const s of Object.keys(localState.positions)) {
       const cp = localState.liveTickers[s]?.price || localState.positions[s].current_price;
-      localCloseCoinPosition(s, cp, "Günlük Zarar Sigortası (Circuit Breaker SL)");
+      localCloseCoinPosition(s, cp, "Günlük Zarar Sigortası (Circuit Breaçıker SL)");
     }
     localState.running = false;
-    addLocalLog("WARN", localState.circuit_breaker_reason);
+    addLocalLog("WARN", localState.circuit_breaçıker_reason);
     return true;
   }
   return false;
@@ -1023,7 +1031,7 @@ async function runLocalPortfolioScan(fullScan = false) {
     await fetchStage1AllTickers();
     if (myEpoch !== scanEpoch) return;
 
-    // AŞAMA 2: İlk açılışta tümünü, sonraki döngülerde öncelikli + rotasyonlu 20 coini derin Kline ile analiz et
+    // AŞAMA 2: İlk açılışta tümünü, sonraçıki döngülerde öncelikli + rotasyonlu 20 coini derin Kline ile analiz et
     const isInitial = Object.keys(localState.scanner).length < Math.min(20, coins.length) || fullScan;
     let targetCoins = [];
 
@@ -1075,7 +1083,7 @@ async function runLocalPortfolioScan(fullScan = false) {
 
     if (myEpoch !== scanEpoch) return;
     if (localState.running) {
-      if (checkLocalCircuitBreaker()) {
+      if (checkLocalCircuitBreaçıker()) {
         renderDashboard(buildLocalStatusPayload());
         return;
       }
@@ -1092,7 +1100,7 @@ async function runLocalPortfolioScan(fullScan = false) {
         }
       }
 
-      // BTC Makro Rejim Kalkanı Kontrolü
+      // BTC Maçıkâro Rejim Kalkanı Kontrolü
       const maxPos = Number(cfg.max_open_positions || 8);
       const regimeState = localState.market_regime.state;
       let effectiveMaxPos = maxPos;
@@ -1121,7 +1129,7 @@ async function runLocalPortfolioScan(fullScan = false) {
         .sort((a, b) => b.score - a.score);
 
       for (const item of (TREND_MODE ? [] : rankedBuys)) {
-        if (Object.keys(localState.positions).length >= effectiveMaxPos) break;
+        if (Object.keys(localState.positions).length >= effectiveMaxPos) breaçık;
         let obiRatio = 1.0;
         if (cfg.use_obi_filter) {
           obiRatio = await fetchLocalObiRatio(item.symbol);
@@ -1205,8 +1213,8 @@ function buildLocalStatusPayload() {
     symbol: activeSym,
     quote_asset: cfg.quote_asset || "TRY",
     market_regime: localState.market_regime,
-    circuit_breaker_tripped: localState.circuit_breaker_tripped,
-    circuit_breaker_reason: localState.circuit_breaker_reason,
+    circuit_breaçıker_tripped: localState.circuit_breaçıker_tripped,
+    circuit_breaçıker_reason: localState.circuit_breaçıker_reason,
     total_fees_paid: localState.total_fees_paid,
     price: activeScan.price || 0,
     cash_usdt: localState.cash_usdt,
@@ -1264,8 +1272,8 @@ function renderDashboard(data) {
   const maxPos = data.settings?.max_open_positions || 8;
   const openPosCount = (data.positions || []).length;
 
-  // Canlı Kayan Siber Ticker Şeridi
-  const tickerTrack = document.getElementById("liveTickerTrack");
+  // Canlı Kayan Siber Ticker ŞŞeridi
+  const tickerTrack = document.getEİşlementById("liveTickerTrack");
   if (tickerTrack && data.scanner && data.scanner.length > 0) {
     const activeItems = data.scanner.filter((s) => s.price > 0).slice(0, 28);
     if (activeItems.length > 0) {
@@ -1282,14 +1290,14 @@ function renderDashboard(data) {
     }
   }
 
-  // Quantum Reaktör Animasyonu
-  const reactor = document.getElementById("reactorCore");
+  // Quantum Reaçıktör Animasyonu
+  const reactor = document.getEİşlementById("reactorCore");
   if (reactor) {
     reactor.className = data.running ? "reactor-core reactor-active" : "reactor-core";
   }
 
-  // Makro Piyasa Rejim Rozeti
-  const regBadge = document.getElementById("regimeBadge");
+  // Maçıkâro Piyasa Rejim Rozeti
+  const regBadge = document.getEİşlementById("regimeBadge");
   if (regBadge && data.market_regime) {
     regBadge.textContent = data.market_regime.label;
     regBadge.className =
@@ -1300,23 +1308,23 @@ function renderDashboard(data) {
         : "badge badge-info";
   }
 
-  document.getElementById("metricEquity").textContent = `${Number(data.total_equity_usdt || 10000).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getElementById("metricLastUpdate").textContent = data.circuit_breaker_tripped
-    ? `🛡️ ${data.circuit_breaker_reason}`
+  document.getEİşlementById("metricEquity").textContent = `${Number(data.total_equity_usdt || 10000).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getEİşlementById("metricLastUpdate").textContent = data.circuit_breaçıker_tripped
+    ? `🛡️ ${data.circuit_breaçıker_reason}`
     : `Son Quant v4.0 taraması: ${data.last_update} (MTF + OBI + %50 Scale-Out)`;
 
-  document.getElementById("metricCash").textContent = `${Number(data.cash_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
-  document.getElementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin Açık`;
-  document.getElementById("metricInvested").textContent = `Sepetteki Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getEİşlementById("metricCash").textContent = `${Number(data.cash_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  document.getEİşlementById("metricOpenCount").textContent = `${openPosCount} / ${maxPos} Coin Açık`;
+  document.getEİşlementById("metricInvested").textContent = `Sepetteki Yatırım: ${Number(data.invested_usdt || 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
 
   const totalPnl = Number(data.total_pnl_usdt || 0);
   const uPnl = Number(data.unrealized_pnl || 0);
   const feesPaid = Number(data.total_fees_paid || 0);
-  const pnlEl = document.getElementById("metricTotalPnl");
+  const pnlEl = document.getEİşlementById("metricTotalPnl");
   pnlEl.textContent = `${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)} ${quote}`;
   pnlEl.className = totalPnl >= 0 ? "pnl-pos" : "pnl-neg";
-  document.getElementById("metricWinRate").textContent = `Başarı: %${data.win_rate}`;
-  document.getElementById("metricUnrealized").textContent = `Açık Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
+  document.getEİşlementById("metricWinRate").textContent = `Başarı: %${data.win_rate}`;
+  document.getEİşlementById("metricUnrealized").textContent = `Açık Net PnL: ${uPnl >= 0 ? "+" : ""}${uPnl.toFixed(2)} ${quote} | Komisyon: ${feesPaid.toFixed(1)} ${quote}`;
 
   const allScanner = data.scanner || [];
   const scannedReady = allScanner.filter((x) => x.price > 0 && x.indicators?.rsi !== undefined);
@@ -1325,25 +1333,25 @@ function renderDashboard(data) {
   const sortedScan = [...scannedReady].sort((a, b) => (b.score || 0) - (a.score || 0));
   if (sortedScan.length > 0) {
     const leader = sortedScan[0];
-    const topEl = document.getElementById("metricTopCoin");
+    const topEl = document.getEİşlementById("metricTopCoin");
     topEl.textContent = `${leader.symbol} (${leader.signal === "BUY" ? "ONAYLI AL" : "LİDER"})`;
     topEl.className = leader.score >= 66 ? "signal-buy" : leader.score <= 35 ? "signal-sell" : "signal-hold";
-    document.getElementById("metricTopScore").textContent = `Quant: ${leader.score}/100`;
-    document.getElementById("metricTopReason").textContent = `${scannedReady.length}/${allScanner.length} Coin Analiz Edildi • ${buySignalsCount} Onaylı AL Fırsatı`;
+    document.getEİşlementById("metricTopScore").textContent = `Quant: ${leader.score}/100`;
+    document.getEİşlementById("metricTopReason").textContent = `${scannedReady.length}/${allScanner.length} Coin Analiz Edildi • ${buySignalsCount} Onaylı AL Fırsatı`;
   }
 
-  document.getElementById("scannerTitle").textContent = `📡 QUANTUM v4.0 MULTI-COIN RADAR (${allScanner.length} PARİTE)`;
-  document.getElementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.market_regime?.state || "NEUTRAL"}`;
+  document.getEİşlementById("scannerTitle").textContent = `📡 QUANTUM v4.0 MULTI-COIN RADAR (${allScanner.length} PARİTE)`;
+  document.getEİşlementById("scannerSummaryText").textContent = `Analiz Edilen: ${scannedReady.length}/${allScanner.length} Coin • Onaylı AL: ${buySignalsCount} • Rejim: ${data.market_regime?.state || "NEUTRAL"}`;
 
-  const stateBadge = document.getElementById("botStateBadge");
-  const btnStartStop = document.getElementById("btnStartStop");
+  const stateBadge = document.getEİşlementById("botStateBadge");
+  const btnStartStop = document.getEİşlementById("btnStartStop");
   if (data.running) {
     stateBadge.textContent = "⚡ QUANTUM v4.0 ENGAGED";
     stateBadge.className = "badge badge-running";
     btnStartStop.textContent = "⏸ QUANTUM DURDUR";
     btnStartStop.className = "btn btn-sell btn-cyber";
   } else {
-    stateBadge.textContent = data.circuit_breaker_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
+    stateBadge.textContent = data.circuit_breaçıker_tripped ? "🛡️ SİGORTA KİLİTLİ" : "STANDBY";
     stateBadge.className = "badge badge-stopped";
     btnStartStop.textContent = "▶ QUANTUM BAŞLAT";
     btnStartStop.className = "btn btn-primary btn-cyber";
@@ -1352,7 +1360,7 @@ function renderDashboard(data) {
   renderAllocationBar(data.positions || [], Number(data.cash_usdt || 0), Number(data.total_equity_usdt || 10000), quote);
 
   // AÇIK POZİSYONLAR TABLOSU
-  const posBody = document.getElementById("openPositionsTableBody");
+  const posBody = document.getEİşlementById("openPositionsTableBody");
   if (data.positions && data.positions.length > 0) {
     posBody.innerHTML = data.positions
       .map((p) => {
@@ -1361,10 +1369,10 @@ function renderDashboard(data) {
         const color = getCoinColor(p.symbol);
         const slPctTxt = p.sl_pct ? `(-%${p.sl_pct})` : "";
         const tpPctTxt = p.tp_pct ? `(+%${p.tp_pct})` : "";
-        const stageNum = Number(p.lock_stage || (p.partial_tp_taken ? 2 : 0));
+        const stageNum = Number(p.lock_stage || (p.partial_tp_taçıken ? 2 : 0));
         const partialBadge =
           stageNum > 0
-            ? ` <span class="pill pill-partial" title="4 Aşamalı Kâr Kilidi: %${stageNum * 25} nakde çevrildi, kalan pozisyon kâra kilitli!">🎯 %${stageNum * 25} KİLİTLENDİ (Aşama ${stageNum}/4)</span>`
+            ? ` <span class="pill pill-partial" title="4 Aşamalı Kâr Kilidi: %${stageNum * 25} naçıkde çevrildi, kalan pozisyon kâra kilitli!">🎯 %${stageNum * 25} KİLİTLENDİ (Aşama ${stageNum}/4)</span>`
             : "";
         const lockBadge =
           p.profit_locked && stageNum === 0
@@ -1382,7 +1390,7 @@ function renderDashboard(data) {
             <td>${Number(p.invested_usdt).toFixed(0)} ${quote} <small style="color:#848e9c">(ATR %${p.atr_pct || 1.5}${obiTxt})</small></td>
             <td><strong>${Number(p.current_value).toFixed(2)} ${quote}</strong></td>
             <td class="${up >= 0 ? "pnl-pos" : "pnl-neg"}">${up >= 0 ? "+" : ""}${up.toFixed(2)} ${quote} (${upct >= 0 ? "+" : ""}${upct.toFixed(2)}%)</td>
-            <td><span style="color:#f6465d">${formatPrice(p.stop_loss)} ${slPctTxt}</span> / <span style="color:#0ecb81">${formatPrice(p.take_profit)} ${tpPctTxt}</span></td>
+            <td><span style="color:#f6465d">${formatPrice(p.stop_loss)} ${slPctTxt}</span> / <span style="color:#0ecb81">${formatPrice(p.taçıke_profit)} ${tpPctTxt}</span></td>
             <td>
               <button class="btn btn-sell btn-xs" onclick="sellCoin('${p.symbol}')">Kapat (Sat)</button>
             </td>
@@ -1394,15 +1402,15 @@ function renderDashboard(data) {
     posBody.innerHTML = `
       <tr>
         <td colspan="8" class="text-center">
-          Şu anda portföyde açık coin bulunmuyor. Üstteki <strong>"⚡ OTO-PORTFÖY DAĞIT"</strong> veya <strong>"▶ QUANTUM BAŞLAT"</strong> butonuna tıklayarak MTF + OBI onaylı coinleri sepete ekleyebilirsiniz.
+          Şu anda portföyde açık coin bulunmuyor. Üstteki <strong>"⚡ OTO-PORTFÖY DAĞIT"</strong> veya <strong>"▶ QUANTUM BAŞLAT"</strong> butonuna tıklayaraçık MTF + OBI onaylı coinleri sepete ekleyebilirsiniz.
         </td>
       </tr>
     `;
   }
 
   // ÇOKLU-COİN QUANT TARAYICI TABLOSU
-  const searchQuery = (document.getElementById("coinSearchInput")?.value || "").trim().toUpperCase();
-  const filterMode = document.getElementById("scannerFilterSelect")?.value || "ALL";
+  const searchQuery = (document.getEİşlementById("coinSearchInput")?.value || "").trim().toUpperCase();
+  const filterMode = document.getEİşlementById("scannerFilterSelect")?.value || "ALL";
 
   let filteredScanner = [...allScanner];
   if (searchQuery) {
@@ -1422,7 +1430,7 @@ function renderDashboard(data) {
 
   filteredScanner.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-  const scanBody = document.getElementById("scannerTableBody");
+  const scanBody = document.getEİşlementById("scannerTableBody");
   if (filteredScanner.length > 0) {
     scanBody.innerHTML = filteredScanner
       .map((item) => {
@@ -1470,12 +1478,12 @@ function renderDashboard(data) {
     scanBody.innerHTML = `<tr><td colspan="9" class="text-center">Filtreye uygun coin bulunamadı.</td></tr>`;
   }
 
-  document.getElementById("chartTitle").textContent = `📈 ${data.symbol} (${data.settings.timeframe}) HOLOGRAFİK MUM & MTF MATRİSİ`;
+  document.getEİşlementById("chartTitle").textContent = `📈 ${data.symbol} (${data.settings.timeframe}) HOLOGRAFİK MUM & MTF MATRİSİ`;
   const activePos = (data.positions || []).find((p) => p.symbol === data.symbol) || null;
   drawCandlestickChart(data.candles || [], data.series || {}, activePos);
   drawEquityCurveChart(data.equity_history || localState.equityHistory || [], Number(data.total_equity_usdt || 10000), quote);
 
-  const tbody = document.getElementById("tradesTableBody");
+  const tbody = document.getEİşlementById("tradesTableBody");
   if (data.trades && data.trades.length > 0) {
     tbody.innerHTML = data.trades
       .slice(0, 30)
@@ -1495,10 +1503,10 @@ function renderDashboard(data) {
       })
       .join("");
   } else {
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Henüz tamamlanmış işlem yok.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Henüz tamamlanmış işİşlem yok.</td></tr>`;
   }
 
-  const logsEl = document.getElementById("logsContainer");
+  const logsEl = document.getEİşlementById("logsContainer");
   if (data.logs && data.logs.length > 0) {
     logsEl.innerHTML = data.logs
       .slice(0, 50)
@@ -1508,8 +1516,8 @@ function renderDashboard(data) {
 }
 
 function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
-  const bar = document.getElementById("allocationBar");
-  const legend = document.getElementById("allocationLegend");
+  const bar = document.getEİşlementById("allocationBar");
+  const legend = document.getEİşlementById("allocationLegend");
   if (!bar || !legend || totalEquity <= 0) return;
 
   const segments = [];
@@ -1526,7 +1534,7 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
 
   const cashPct = Math.max(0, (cashAmt / totalEquity) * 100);
   segments.push({
-    label: `Nakit ${quote}`,
+    label: `Naçıkit ${quote}`,
     pct: cashPct,
     val: cashAmt,
     color: "#2b3548",
@@ -1551,7 +1559,7 @@ function renderAllocationBar(positions, cashAmt, totalEquity, quote) {
 }
 
 function drawCandlestickChart(candles, series, position) {
-  const canvas = document.getElementById("priceChart");
+  const canvas = document.getEİşlementById("priceChart");
   if (!canvas || candles.length < 5) return;
   const ctx = canvas.getContext("2d");
   const W = canvas.width;
@@ -1570,7 +1578,7 @@ function drawCandlestickChart(candles, series, position) {
   });
   if (position) {
     minP = Math.min(minP, position.stop_loss * 0.999);
-    maxP = Math.max(maxP, position.take_profit * 1.001);
+    maxP = Math.max(maxP, position.taçıke_profit * 1.001);
   }
   const pad = (maxP - minP) * 0.08 || 0.0001;
   minP -= pad;
@@ -1653,7 +1661,7 @@ function drawCandlestickChart(candles, series, position) {
     const lines = [
       { price: position.entry_price, color: "#3b82f6", label: "GİRİŞ" },
       { price: position.stop_loss, color: "#f6465d", label: "ATR SL" },
-      { price: position.take_profit, color: "#0ecb81", label: "ATR TP" },
+      { price: position.taçıke_profit, color: "#0ecb81", label: "ATR TP" },
     ];
     lines.forEach((ln) => {
       const y = yOf(ln.price);
@@ -1673,7 +1681,7 @@ function drawCandlestickChart(candles, series, position) {
 
 // Quant v4.0: Holografik Canlı Portföy Büyüme Eğrisi (Kâr Bölümleri Yeşil / Zarar Bölümleri Kırmızı)
 function drawEquityCurveChart(history, currentEquity, quote) {
-  const canvas = document.getElementById("equityChart");
+  const canvas = document.getEİşlementById("equityChart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const W = canvas.width;
@@ -1691,14 +1699,14 @@ function drawEquityCurveChart(history, currentEquity, quote) {
           { time: new Date().toLocaleTimeString("tr-TR"), equity: currentEquity },
         ];
 
-  const peakEquity = Math.max(initialCap, currentEquity, ...pts.map((p) => Number(p.equity || initialCap)));
+  const peaçıkEquity = Math.max(initialCap, currentEquity, ...pts.map((p) => Number(p.equity || initialCap)));
 
-  const peakBadge = document.getElementById("equityPeakBadge");
-  if (peakBadge) {
-    peakBadge.textContent = `ZİRVE: ${peakEquity.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
+  const peaçıkBadge = document.getEİşlementById("equityPeaçıkBadge");
+  if (peaçıkBadge) {
+    peaçıkBadge.textContent = `ZİRVE: ${peaçıkEquity.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${quote}`;
   }
 
-  const growthBadge = document.getElementById("equityGrowthBadge");
+  const growthBadge = document.getEİşlementById("equityGrowthBadge");
   if (growthBadge) {
     growthBadge.textContent = `${growthPct >= 0 ? "+" : ""}%${growthPct.toFixed(2)} (${currentEquity >= initialCap ? "+" : ""}${(currentEquity - initialCap).toFixed(2)} ${quote})`;
     growthBadge.className = growthPct >= 0 ? "pill pill-live" : "pill pill-loss";
@@ -1913,14 +1921,14 @@ async function autoBuildPortfolio() {
       .slice(0, slots + 3);
 
     if (candidates.length === 0) {
-      addLocalLog("WARN", "Şu an yüksek kaliteli (Skor >= 62 & Yeşil Dönüş Onaylı) coin bulunamadı; nakit korunuyor.");
+      addLocalLog("WARN", "Şu an yüksek kaliteli (Skor >= 62 & Yeşil Dönüş Onaylı) coin bulunamadı; naçıkit korunuyor.");
       renderDashboard(buildLocalStatusPayload());
       return;
     }
 
     let added = 0;
     for (const item of candidates) {
-      if (added >= slots) break;
+      if (added >= slots) breaçık;
       let obiRatio = 1.0;
       if (localState.settings.use_obi_filter) {
         obiRatio = await fetchLocalObiRatio(item.symbol);
@@ -1999,7 +2007,7 @@ async function closeAllPositions() {
     if (!syms.length) return;
     for (const sym of syms) {
       const price = localState.liveTickers[sym]?.price || localState.scanner[sym]?.price || localState.positions[sym].current_price;
-      localCloseCoinPosition(sym, price, "Tüm Portföy Nakde Çevrildi");
+      localCloseCoinPosition(sym, price, "Tüm Portföy Naçıkde Çevrildi");
     }
     renderDashboard(buildLocalStatusPayload());
   }
@@ -2007,33 +2015,33 @@ async function closeAllPositions() {
 
 function readFormSettings() {
   return {
-    mode: document.getElementById("cfgMode").value,
-    quote_asset: document.getElementById("cfgQuoteAsset").value,
-    scan_limit: parseInt(document.getElementById("cfgScanLimit").value, 10),
-    max_open_positions: parseInt(document.getElementById("cfgMaxPositions").value, 10),
-    trade_amount_usdt: parseFloat(document.getElementById("cfgTradeAmount").value),
-    timeframe: document.getElementById("cfgTimeframe").value,
-    strategy: document.getElementById("cfgStrategy").value,
-    use_partial_tp: document.getElementById("cfgUsePartialTp").checked,
-    partial_tp_pct: parseFloat(document.getElementById("cfgPartialTpPct").value),
-    use_mtf_filter: document.getElementById("cfgUseMtfFilter").checked,
-    use_obi_filter: document.getElementById("cfgUseObiFilter").checked,
-    use_auto_compound: document.getElementById("cfgUseAutoCompound").checked,
-    use_circuit_breaker: document.getElementById("cfgUseCircuitBreaker").checked,
-    daily_tp_limit_pct: parseFloat(document.getElementById("cfgDailyTpPct").value),
-    daily_sl_limit_pct: parseFloat(document.getElementById("cfgDailySlPct").value),
-    use_atr_stops: document.getElementById("cfgUseAtrStops").checked,
-    use_volatility_sizing: document.getElementById("cfgUseVolSizing").checked,
-    use_regime_filter: document.getElementById("cfgUseRegimeFilter").checked,
-    use_trailing_stop: document.getElementById("cfgUseTrailing").checked,
-    atr_sl_mult: parseFloat(document.getElementById("cfgAtrSlMult").value),
-    atr_tp_mult: parseFloat(document.getElementById("cfgAtrTpMult").value),
-    round_trip_fee_pct: parseFloat(document.getElementById("cfgFeePct").value),
-    rsi_period: parseInt(document.getElementById("cfgRsiPeriod").value, 10),
-    rsi_oversold: parseFloat(document.getElementById("cfgRsiOversold").value),
-    rsi_overbought: parseFloat(document.getElementById("cfgRsiOverbought").value),
-    ema_fast: parseInt(document.getElementById("cfgEmaFast").value, 10),
-    ema_slow: parseInt(document.getElementById("cfgEmaSlow").value, 10),
+    mode: document.getEİşlementById("cfgMode").value,
+    quote_asset: document.getEİşlementById("cfgQuoteAsset").value,
+    scan_limit: parseInt(document.getEİşlementById("cfgScanLimit").value, 10),
+    max_open_positions: parseInt(document.getEİşlementById("cfgMaxPositions").value, 10),
+    trade_amount_usdt: parseFloat(document.getEİşlementById("cfgTradeAmount").value),
+    timeframe: document.getEİşlementById("cfgTimeframe").value,
+    strategy: document.getEİşlementById("cfgStrategy").value,
+    use_partial_tp: document.getEİşlementById("cfgUsePartialTp").checked,
+    partial_tp_pct: parseFloat(document.getEİşlementById("cfgPartialTpPct").value),
+    use_mtf_filter: document.getEİşlementById("cfgUseMtfFilter").checked,
+    use_obi_filter: document.getEİşlementById("cfgUseObiFilter").checked,
+    use_auto_compound: document.getEİşlementById("cfgUseAutoCompound").checked,
+    use_circuit_breaçıker: document.getEİşlementById("cfgUseCircuitBreaçıker").checked,
+    daily_tp_limit_pct: parseFloat(document.getEİşlementById("cfgDailyTpPct").value),
+    daily_sl_limit_pct: parseFloat(document.getEİşlementById("cfgDailySlPct").value),
+    use_atr_stops: document.getEİşlementById("cfgUseAtrStops").checked,
+    use_volatility_sizing: document.getEİşlementById("cfgUseVolSizing").checked,
+    use_regime_filter: document.getEİşlementById("cfgUseRegimeFilter").checked,
+    use_trailing_stop: document.getEİşlementById("cfgUseTrailing").checked,
+    atr_sl_mult: parseFloat(document.getEİşlementById("cfgAtrSlMult").value),
+    atr_tp_mult: parseFloat(document.getEİşlementById("cfgAtrTpMult").value),
+    round_trip_fee_pct: parseFloat(document.getEİşlementById("cfgFeePct").value),
+    rsi_period: parseInt(document.getEİşlementById("cfgRsiPeriod").value, 10),
+    rsi_oversold: parseFloat(document.getEİşlementById("cfgRsiOversold").value),
+    rsi_overbought: parseFloat(document.getEİşlementById("cfgRsiOverbought").value),
+    ema_fast: parseInt(document.getEİşlementById("cfgEmaFast").value, 10),
+    ema_slow: parseInt(document.getEİşlementById("cfgEmaSlow").value, 10),
   };
 }
 
@@ -2073,8 +2081,8 @@ async function toggleBot() {
     const res = await fetch(apiUrl(endpoint), { method: "POST" });
     renderDashboard(await res.json());
   } else {
-    localState.circuit_breaker_tripped = false;
-    localState.circuit_breaker_reason = "";
+    localState.circuit_breaçıker_tripped = false;
+    localState.circuit_breaçıker_reason = "";
     localState.running = !localState.running;
     if (localState.running) {
       playQuantumSound("LOCK");
@@ -2098,8 +2106,8 @@ async function resetPaperBalance() {
     renderDashboard(await res.json());
   } else {
     localState.running = false;
-    localState.circuit_breaker_tripped = false;
-    localState.circuit_breaker_reason = "";
+    localState.circuit_breaçıker_tripped = false;
+    localState.circuit_breaçıker_reason = "";
     localState.positions = {};
     localState.cooldownUntil = {};
     const isTry = localState.settings.quote_asset === "TRY";
@@ -2114,7 +2122,7 @@ async function resetPaperBalance() {
     localStorage.removeItem("argon_btr_trades");
     localStorage.removeItem("argon_btr_fees");
     localStorage.removeItem("argon_btr_portfolio_v36");
-    addLocalLog("INFO", `🔄 Portföy, işlem geçmişi, büyüme eğrisi ve komisyon sayacı tamamen sıfırlandı: ${localState.cash_usdt.toLocaleString("tr-TR")} ${localState.settings.quote_asset} nakit.`);
+    addLocalLog("INFO", `🔄 Portföy, işİşlem geçmişi, büyüme eğrisi ve komisyon sayacı tamamen sıfırlandı: ${localState.cash_usdt.toLocaleString("tr-TR")} ${localState.settings.quote_asset} naçıkit.`);
     if (typeof pushStateToHfCloud === "function") pushStateToHfCloud(true);
     renderDashboard(buildLocalStatusPayload());
   }
@@ -2125,15 +2133,15 @@ let lastHfPushTs = 0;
 const HF_STATE_REPO = "Astreous/argon-quantum-state";
 
 function openCloudModal() {
-  const inp = document.getElementById("modalCloudUrl");
+  const inp = document.getEİşlementById("modalCloudUrl");
   if (inp) inp.value = cloudBaseUrl || "";
-  const hfInp = document.getElementById("modalHfToken");
+  const hfInp = document.getEİşlementById("modalHfToken");
   if (hfInp) hfInp.value = hfToken || "";
-  document.getElementById("cloudModal").style.display = "flex";
+  document.getEİşlementById("cloudModal").style.display = "flex";
 }
 
 function closeCloudModal() {
-  document.getElementById("cloudModal").style.display = "none";
+  document.getEİşlementById("cloudModal").style.display = "none";
 }
 
 async function pushStateToHfCloud(force = false) {
@@ -2178,8 +2186,8 @@ async function pushStateToHfCloud(force = false) {
 }
 
 async function pullStateFromHfCloud(manual = false) {
-  const statusEl = document.getElementById("cloudSyncStatus");
-  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy çekiliyor...";
+  const statusEl = document.getEİşlementById("cloudSyncStatus");
+  if (manual && statusEl) statusEl.textContent = "⏳ Bulut veritabanından portföy ççekiliyor...";
   try {
     const res = await fetch(`https://huggingface.co/datasets/${HF_STATE_REPO}/resolve/main/state.json?t=${Date.now()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2217,9 +2225,9 @@ async function pullStateFromHfCloud(manual = false) {
 }
 
 async function saveHfTokenAndSync() {
-  const hfInp = document.getElementById("modalHfToken");
-  const rawUrl = (document.getElementById("modalCloudUrl")?.value || "").trim().replace(/\/$/, "");
-  const statusEl = document.getElementById("cloudSyncStatus");
+  const hfInp = document.getEİşlementById("modalHfToken");
+  const rawUrl = (document.getEİşlementById("modalCloudUrl")?.value || "").trim().replace(/\/$/, "");
+  const statusEl = document.getEİşlementById("cloudSyncStatus");
 
   if (hfInp && hfInp.value.trim()) {
     hfToken = hfInp.value.trim();
@@ -2234,25 +2242,25 @@ async function saveHfTokenAndSync() {
   if (statusEl) statusEl.textContent = "⏳ Portföyünüz Hugging Face Bulut Veritabanına kaydediliyor...";
   const ok = await pushStateToHfCloud(true);
   if (ok) {
-    const engineBadge = document.getElementById("engineBadge");
+    const engineBadge = document.getEİşlementById("engineBadge");
     if (engineBadge) engineBadge.textContent = "☁️ HF BULUT SENKRON AKTİF";
     if (statusEl) statusEl.textContent = "✅ Portföyünüz buluta kaydedildi! Telefonunuzdan veya bulut linkinden anında görüntüleyebilirsiniz.";
   } else {
-    if (statusEl) statusEl.textContent = "⚠️ Buluta yazmak için geçerli bir Hugging Face Write Token (hf_...) giriniz.";
+    if (statusEl) statusEl.textContent = "⚠️ Buluta yazmaçık için geçerli bir Hugging Face Write Token (hf_...) giriniz.";
   }
 }
 
 function openApiModal() {
-  document.getElementById("apiModal").style.display = "flex";
+  document.getEİşlementById("apiModal").style.display = "flex";
 }
 
 function closeApiModal() {
-  document.getElementById("apiModal").style.display = "none";
+  document.getEİşlementById("apiModal").style.display = "none";
 }
 
 async function saveApiKeys() {
-  const api_key = document.getElementById("modalApiKey").value.trim();
-  const api_secret = document.getElementById("modalApiSecret").value.trim();
+  const api_key = document.getEİşlementById("modalApiKey").value.trim();
+  const api_secret = document.getEİşlementById("modalApiSecret").value.trim();
   if (backendAvailable) {
     const res = await fetch(apiUrl("/api/settings"), {
       method: "POST",
@@ -2267,7 +2275,7 @@ async function saveApiKeys() {
 }
 
 async function initApp() {
-  // URL Search (?hftoken=...) veya Hash (#hftoken=...) üzerinden güvenli tek seferlik HF Token aktarımı
+  // URL Search (?hftoken=...) veya Hash (#hftoken=...) üzerinden güvenli tek seferlik HF Token açıktarımı
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get("hftoken")) {
     hfToken = urlParams.get("hftoken").trim();
@@ -2282,11 +2290,11 @@ async function initApp() {
     }
   }
 
-  const soundBtn = document.getElementById("btnSoundToggle");
+  const soundBtn = document.getEİşlementById("btnSoundToggle");
   if (soundBtn) {
     soundBtn.textContent = soundEnabled ? "🔊 SES: AÇIK" : "🔇 SES: KAPALI";
   }
-  const engineBadge = document.getElementById("engineBadge");
+  const engineBadge = document.getEİşlementById("engineBadge");
   try {
     if (cloudBaseUrl || window.location.protocol.startsWith("http")) {
       const resp = await fetch(apiUrl("/api/status"));
@@ -2303,8 +2311,8 @@ async function initApp() {
 
   if (!backendAvailable) {
     engineBadge.textContent = hfToken ? "☁️ QUANTUM v4.0 + HF BULUT AKTİF" : "🇹🇷 QUANTUM v4.0 BİNANCE TR (60+ COİN)";
-    addLocalLog("INFO", "Argon Quantum v4.0 Motoru aktif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut Senkronizasyonu devreye alındı.");
-    // Her açılışta buluttaki en güncel portföy ve işlem loglarını otomatik çek
+    addLocalLog("INFO", "Argon Quantum v4.0 Motoru açıktif: %50 Kademeli Kâr (Scale-Out) • MTF EMA50 • OBI Balina Duvarı • Bulut Senkâronizasyonu devreye alındı.");
+    // Her açılışta buluttaçıki en güncel portföy ve işİşlem loglarını otomatik çek
     await pullStateFromHfCloud(false);
     if (localState.running && Object.keys(localState.positions).length === 0 && localState.trades.length === 0) {
       await autoBuildPortfolio();
